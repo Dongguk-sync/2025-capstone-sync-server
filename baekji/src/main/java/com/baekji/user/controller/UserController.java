@@ -21,7 +21,6 @@ public class UserController {
     public ResponseDTO<List<UserDTO>> getAllUsers() {
         // AI 서버와 통신
         List<UserDTO> response = userService.getAllUsers();
-
         return ResponseDTO.ok(response);
     }
 
