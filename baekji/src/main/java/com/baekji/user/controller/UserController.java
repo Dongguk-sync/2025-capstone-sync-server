@@ -1,5 +1,6 @@
 package com.baekji.user.controller;
 
+import com.baekji.common.ResponseDTO;
 import com.baekji.user.dto.UserDTO;
 import com.baekji.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,11 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseDTO<List<UserDTO>> getAllUsers() {
+        // AI 서버와 통신
+        List<UserDTO> response = userService.getAllUsers();
+
+        return ResponseDTO.ok(response);
     }
+
 }
