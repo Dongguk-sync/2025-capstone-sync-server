@@ -19,7 +19,8 @@ public class UserController {
 
     @GetMapping
     public ResponseDTO<List<UserDTO>> getAllUsers() {
-        // AI 서버와 통신
+
+        // 설명.1.1. 사원 리스트 전체 조회
         List<UserDTO> response = userService.getAllUsers();
 
         return ResponseDTO.ok(response);
