@@ -1,8 +1,15 @@
 spring:
   devtools:
     restart:
-      enabled: false # DevTools ?? ??? ????
+      enabled: false # DevTools 비활성화
 
+  # 파일 크기 설정
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  # 데이터 베이스 설정
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://localhost:3306/baekjidb
@@ -10,11 +17,31 @@ spring:
     password: baekji
 
   jpa:
-    generate-ddl: false # ??? ?? ?? ????
-    show-sql: true # ???? SQL? ??
-    database: mysql # ?????? ??
+    generate-ddl: false # 스키마 자동 생성 비활성화
+    show-sql: true # 실행되는 SQL을 출력
+    database: mysql # 데이터베이스 종류
     properties:
       hibernate:
-        '[format_sql]': true # SQL ?? ? ??? ???
+        '[format_sql]': true # SQL 출력 시 포맷팅 활성화
 
-    debug: true # ?? ?? ??? ?? ?? ???
+  # 디버깅 레벨 설정
+  logging:
+    level:
+      com:
+        baekji: info  # debug or info
+
+# JWT 설정
+token:
+  access-expiration-time: 2880000000 # 액세스 토큰 만료시간 설정 (800시간 = 800 * 60 * 60 * 1000 ms)
+  refresh-expiration-time: 86400000 # 리프레시 토큰 만료시간 설정 (1일 = 24 * 60 * 60 * 1000 ms)
+  access-secret: KksWkOy539IOOrQCShB0fI0KuhODzPnXRYmpY7rjEpF4TjzQ/Mo9r1+LMnYja+QFISDBF5ps6A312VqK4tfnZQ== # JWT 시크릿 키
+  refresh-secret: i8Rj4A0lPQ2zEIhosO5MvNr0xGEz76bXYQUYId27j9gUjoSBh0gADn4SzoYpJ6qOAUhAQWCQpU9/zz+A6KYW8A==
+
+
+# 평문 비밀번호 저장 (최초 관리자 비번)
+admin:
+  password: baekji
+
+#AI(챗봇) 서버
+ai:
+  server-url: http://localhost:8000/query

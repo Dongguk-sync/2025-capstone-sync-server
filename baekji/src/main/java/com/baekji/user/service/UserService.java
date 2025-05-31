@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    // 설명.1.1. 전체 사용자 조회
     public List<UserDTO> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
 
@@ -29,4 +29,19 @@ public class UserService {
         return userMapper.toUserDTOList(users);
     }
 
+    // 설명.1.2. ID로 사용자 조회
+    public UserDTO getUserById(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        return userMapper.toUserDTO(user);
+    }
+
+    // 설명.1.3. 이메일로 사용자 조회
+    public UserDTO getUserByEmail(String userEmail) {
+        UserEntity user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        return userMapper.toUserDTO(user);
+    }
 }

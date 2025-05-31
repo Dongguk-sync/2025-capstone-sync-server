@@ -1,12 +1,11 @@
 package com.baekji.user.domain;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "User")
+@Table(name = "user")
 @Data
 public class UserEntity {
 
@@ -35,4 +34,19 @@ public class UserEntity {
 
     @Column(name = "user_nickname", length = 10)
     private String userNickname;
+
+    @Column(name = "user_last_logged_in", nullable = false)
+    private LocalDateTime userLastLoggedIn = LocalDateTime.of(2000, 1, 1, 10, 0, 0);
+
+    @Column(name = "user_studied_days", nullable = false)
+    private Long userStudiedDays = 1L;
+
+    @Column(name = "user_total_reviews", nullable = false)
+    private Long userTotalReviews = 0L;
+
+    @Column(name = "user_completed_reviews", nullable = false)
+    private Long userCompletedReviews = 0L;
+
+    @Column(name = "user_progress_rate", nullable = false)
+    private Double userProgressRate = 0.0;
 }

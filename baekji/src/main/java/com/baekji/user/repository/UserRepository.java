@@ -3,6 +3,8 @@ package com.baekji.user.repository;
 import com.baekji.user.domain.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    // 기본 CRUD 메서드 포함됨
+    Optional<UserEntity> findByUserEmail(String userEmail);
 }

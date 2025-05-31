@@ -3,6 +3,7 @@ package com.baekji.user.mapper;
 import com.baekji.user.domain.UserEntity;
 import com.baekji.user.dto.UserDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
