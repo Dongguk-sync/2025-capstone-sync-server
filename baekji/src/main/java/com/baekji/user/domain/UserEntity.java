@@ -1,5 +1,7 @@
 package com.baekji.user.domain;
 
+import com.baekji.common.enums.UserRole;
+import com.baekji.common.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -19,6 +21,14 @@ public class UserEntity {
 
     @Column(name = "user_password", nullable = false, length = 255)
     private String userPassword;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false, length = 255)
+    private UserRole userRole;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_status", nullable = false, length = 255)
+    private UserStatus userStatus;
 
     @Column(name = "user_name", nullable = false, length = 255)
     private String userName;
