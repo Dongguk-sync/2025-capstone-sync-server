@@ -66,11 +66,12 @@ public class WebSecurity {
         // 설명. 권한 설정
         http.authorizeHttpRequests(authz -> authz
                     .requestMatchers(new AntPathRequestMatcher("/api/health", "GET")).permitAll()
-                    // 설명. 1. 로그인은 어떤 사용자도 이용 가능
+                    // 설명. 1. 로그인, 회원가입은 어떤 사용자도 이용 가능
                     .requestMatchers(new AntPathRequestMatcher("/api/login/**", "POST")).permitAll()
                     .requestMatchers(new AntPathRequestMatcher("/api/auth/**", "POST")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/api/signup/**", "POST")).permitAll()
 
-                    // 설명. 2. user(회원) 도메인
+                        // 설명. 2. user(회원) 도메인
                     // 설명. 2.1. 회원 테이블 관련 API
                     .requestMatchers(new AntPathRequestMatcher("/api/users/**", "GET")).hasAnyRole("USER", "ADMIN")
                     .requestMatchers(new AntPathRequestMatcher("/api/users/**", "POST")).hasAnyRole("USER", "ADMIN")

@@ -1,18 +1,17 @@
 package com.baekji.user.dto;
 
 
+import com.baekji.common.enums.UserRole;
+import com.baekji.common.enums.UserStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class UserDTO {
 
     @JsonProperty("user_id")
@@ -23,6 +22,12 @@ public class UserDTO {
 
     @JsonProperty("user_password")
     private String userPassword;
+
+    @JsonProperty("user_role")
+    private UserRole userRole;
+
+    @JsonProperty("user_status")
+    private UserStatus userStatus;
 
     @JsonProperty("user_name")
     private String userName;
@@ -45,11 +50,11 @@ public class UserDTO {
     @JsonProperty("user_studied_days")
     private Long userStudiedDays;
 
-    @JsonProperty("user_total_reviews")
-    private Long userTotalReviews;
+    @JsonProperty("user_total_studys")
+    private Long userTotalStudys;
 
-    @JsonProperty("user_completed_reviews")
-    private Long userCompletedReviews;
+    @JsonProperty("user_completed_studys")
+    private Long userCompletedStudys;
 
     @JsonProperty("user_progress_rate")
     private Double userProgressRate;
