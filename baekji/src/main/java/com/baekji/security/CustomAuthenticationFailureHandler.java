@@ -35,7 +35,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             customException = new CommonException(ErrorCode.NOT_FOUND_USER_ID); // 사용자 정의 에러코드로 설정
         } else if (exception.getMessage().equals("비밀번호를 잘못 입력하셨습니다.")) {
             customException = new CommonException(ErrorCode.INVALID_PASSWORD); // 사용자 정의 에러코드로 설정
-        } else if (exception.getMessage().equals("퇴사한 사원 입니다.")) {
+        } else if (exception.getMessage().equals("탈토한 회원 입니다.")) {
             customException = new CommonException(ErrorCode.INACTIVE_USER); // 사용자 정의 에러코드로 설정
         }
         else {

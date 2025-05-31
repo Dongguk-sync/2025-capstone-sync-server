@@ -33,6 +33,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 
+	//필기. 모델 매퍼
+	// https://mvnrepository.com/artifact/org.modelmapper/modelmapper
+	implementation 'org.modelmapper:modelmapper:3.1.1'
+
 	//필기. mariadb설정
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 

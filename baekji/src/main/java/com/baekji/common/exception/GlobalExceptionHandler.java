@@ -13,7 +13,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
 //필기. 해당 패키지에서 에러 발생시 작동하는 Handler
-@RestControllerAdvice(basePackages = "com.pado.inflow")
+@RestControllerAdvice(basePackages = "com.baekji")
 public class GlobalExceptionHandler {
 
     // 지원되지 않는 HTTP 메소드를 사용할 때 발생하는 예외

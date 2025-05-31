@@ -1,30 +1,37 @@
 package com.baekji.user.service;
 
+import com.baekji.common.enums.UserRole;
 import com.baekji.common.exception.CommonException;
 import com.baekji.common.exception.ErrorCode;
 import com.baekji.user.domain.UserEntity;
 import com.baekji.user.dto.UserDTO;
-import com.baekji.user.mapper.UserMapper;
+import com.baekji.user.dto.UserSignUpRequestDTO;
 import com.baekji.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final ModelMapper modelMapper;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final String basicUserProfileUrl = "https://baekji-bucket.s3.ap-northeast-2.amazonaws.com/user_basic_profile.png";
     // 설명.1.1. 전체 사용자 조회
     public List<UserDTO> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
@@ -33,7 +40,9 @@ public class UserService implements UserDetailsService {
             throw new CommonException(ErrorCode.NOT_FOUND_USER);
         }
 
-        return userMapper.toUserDTOList(users);
+        return users.stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
     }
 
     // 설명.1.2. ID로 사용자 조회
@@ -41,15 +50,51 @@ public class UserService implements UserDetailsService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
-        return userMapper.toUserDTO(user);
+        return modelMapper.map(user, UserDTO.class);
     }
+
 
     // 설명.1.3. 이메일로 사용자 조회
     public UserDTO getUserByEmail(String userEmail) {
         UserEntity user = userRepository.findByUserEmail(userEmail)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
-        return userMapper.toUserDTO(user);
+        return modelMapper.map(user, UserDTO.class);
+    }
+
+
+    // 설명.2. 회원 가입
+    @Transactional
+    public UserDTO registerUser(UserSignUpRequestDTO signUpRequest) {
+        if (userRepository.findByUserEmail(signUpRequest.getUserEmail()).isPresent()) {
+            throw new CommonException(ErrorCode.EXIST_USER);
+        }
+
+        String encodedPassword = encodePassword(signUpRequest.getUserPassword());
+
+        UserEntity newUser = UserEntity.builder()
+                .userEmail(signUpRequest.getUserEmail())
+                .userPassword(encodedPassword)
+                .userRole(UserRole.valueOf(signUpRequest.getUserRole().toUpperCase())) // String → Enum
+                .userName(signUpRequest.getUserName())
+                .userPhoneNumber(signUpRequest.getUserPhoneNumber())
+                .userNickname(signUpRequest.getUserNickname())
+                .userProfileUrl(basicUserProfileUrl)
+                .build();
+
+        UserEntity savedUser = userRepository.save(newUser);
+
+        return modelMapper.map(savedUser, UserDTO.class);
+    }
+
+
+    // 설명.2.1. 비밀번호 Bcrypt 암호화
+    private String encodePassword(String password) {
+        try {
+            return bCryptPasswordEncoder.encode(password);
+        } catch (Exception e) {
+            throw new CommonException(ErrorCode.PASSWORD_ENCODING_FAILED);
+        }
     }
 
 
@@ -78,4 +123,5 @@ public class UserService implements UserDetailsService {
                 true, true, true, true,
                 grantedAuthorities);
     }
+
 }

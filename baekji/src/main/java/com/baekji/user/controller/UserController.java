@@ -3,18 +3,16 @@ package com.baekji.user.controller;
 import com.baekji.common.ResponseDTO;
 import com.baekji.security.JwtUtil;
 import com.baekji.user.dto.UserDTO;
+import com.baekji.user.dto.UserSignUpRequestDTO;
 import com.baekji.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -31,17 +29,27 @@ public class UserController {
     }
 
     // 설명.1.2. 회원 정보 id로 조회
-    @GetMapping("/id/{userId}")
+    @GetMapping("users/id/{userId}")
     public ResponseDTO<UserDTO> getUserById(@PathVariable(value = "userId") Long userId) {
         UserDTO user = userService.getUserById(userId);
         return ResponseDTO.ok(user);
     }
 
     // 설명.1.3. 회원 정보 이메일로 조회
-    @GetMapping("/email/{userEmail}")
+    @GetMapping("users/email/{userEmail}")
     public ResponseDTO<UserDTO> getUserByEmail(@PathVariable(value = "userEmail") String userEmail) {
         UserDTO user = userService.getUserByEmail(userEmail);
         return ResponseDTO.ok(user);
     }
 
+
+    // 설명.2. 회원 가입
+    @PostMapping("/signup")
+    public ResponseDTO<UserDTO> signUp(@RequestBody UserSignUpRequestDTO signUpRequestDTO) {
+        UserDTO newUser = userService.registerUser(signUpRequestDTO);
+        return ResponseDTO.ok(newUser);
+    }
+    // 설명.3. 프로필 수정
+
+    // 설명.4. 비밀번호 재설정
 }
