@@ -22,7 +22,7 @@ public class UserController {
 
 
     // 설명.1.1. 사용자 전체 조회
-    @GetMapping
+    @GetMapping("users/")
     public ResponseDTO<List<UserDTO>> getAllUsers() {
         List<UserDTO> response = userService.getAllUsers();
         return ResponseDTO.ok(response);
