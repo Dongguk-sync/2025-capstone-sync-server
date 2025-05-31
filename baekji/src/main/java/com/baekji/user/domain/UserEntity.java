@@ -51,11 +51,11 @@ public class UserEntity {
     @Column(name = "user_studied_days", nullable = false)
     private Long userStudiedDays = 0L;
 
-    @Column(name = "user_total_reviews", nullable = false)
-    private Long userTotalReviews = 0L;
+    @Column(name = "user_total_studys", nullable = false)
+    private Long userTotalStudys = 0L;
 
-    @Column(name = "user_completed_reviews", nullable = false)
-    private Long userCompletedReviews = 0L;
+    @Column(name = "user_completed_studys", nullable = false)
+    private Long userCompletedStudys = 0L;
 
     @Column(name = "user_progress_rate", nullable = false)
     private Double userProgressRate = 0.0;

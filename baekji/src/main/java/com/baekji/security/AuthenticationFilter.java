@@ -132,8 +132,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         /**
          * 로그인 성공 후 정보 업데이트
-         * - 만약 마지막 로그인 시점이 현재와 다르면
-         * --
+         * 1. 만약 마지막 로그인 시점이 현재와 다르면
+         * - 백지 학습일자 증가
+         *
+         * 2. 로그인시 총 개수, 학습 개수, 학습률 갱신
          */
         if (!loginUser.getUserLastLoggedIn().toLocalDate().isEqual
                 (LocalDateTime.now().toLocalDate())) {
