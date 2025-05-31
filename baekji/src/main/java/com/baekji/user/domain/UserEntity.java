@@ -49,7 +49,7 @@ public class UserEntity {
     private LocalDateTime userLastLoggedIn = LocalDateTime.of(2000, 1, 1, 10, 0, 0);
 
     @Column(name = "user_studied_days", nullable = false)
-    private Long userStudiedDays = 1L;
+    private Long userStudiedDays = 0L;
 
     @Column(name = "user_total_reviews", nullable = false)
     private Long userTotalReviews = 0L;

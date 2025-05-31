@@ -32,8 +32,8 @@ spring:
 
 # JWT 설정
 token:
-  access-expiration-time: 2880000000 # 액세스 토큰 만료시간 설정 (800시간 = 800 * 60 * 60 * 1000 ms)
-  refresh-expiration-time: 86400000 # 리프레시 토큰 만료시간 설정 (1일 = 24 * 60 * 60 * 1000 ms)
+  access-expiration-time: 28800000000 # 액세스 토큰 만료시간 설정 (8000시간 = 8000 * 60 * 60 * 1000 ms)
+  refresh-expiration-time: 864000000 # 리프레시 토큰 만료시간 설정 (1일 = 24 * 60 * 60 * 1000 ms)
   access-secret: wydOqgyCXQ3mk77AoaKF/qQymPL2fMySsRqS4i9kHD6dY6j2uUbL8y6VTm0WqjKb2hosOOHOayC/YY/YGEVGGA== # JWT 시크릿 키
   refresh-secret: NCIi+ryZcJHrxAaVirvXpaocWytVAMkgyKFfj9ZYrkB5fU02m1E37Gv7rKAcH2jETvpavEKzB0P9HZgvXHMqqA==
 
