@@ -1,9 +1,11 @@
 package com.baekji.user.controller;
 
 import com.baekji.common.ResponseDTO;
+import com.baekji.security.JwtUtil;
 import com.baekji.user.dto.UserDTO;
 import com.baekji.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final Environment env;
+//    private final JwtUtil jwtUtil;
+
 
     // 설명.1.1. 사용자 전체 조회
     @GetMapping

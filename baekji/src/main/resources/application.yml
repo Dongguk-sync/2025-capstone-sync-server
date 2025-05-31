@@ -34,8 +34,8 @@ spring:
 token:
   access-expiration-time: 2880000000 # 액세스 토큰 만료시간 설정 (800시간 = 800 * 60 * 60 * 1000 ms)
   refresh-expiration-time: 86400000 # 리프레시 토큰 만료시간 설정 (1일 = 24 * 60 * 60 * 1000 ms)
-  access-secret: KksWkOy539IOOrQCShB0fI0KuhODzPnXRYmpY7rjEpF4TjzQ/Mo9r1+LMnYja+QFISDBF5ps6A312VqK4tfnZQ== # JWT 시크릿 키
-  refresh-secret: i8Rj4A0lPQ2zEIhosO5MvNr0xGEz76bXYQUYId27j9gUjoSBh0gADn4SzoYpJ6qOAUhAQWCQpU9/zz+A6KYW8A==
+  access-secret: wydOqgyCXQ3mk77AoaKF/qQymPL2fMySsRqS4i9kHD6dY6j2uUbL8y6VTm0WqjKb2hosOOHOayC/YY/YGEVGGA== # JWT 시크릿 키
+  refresh-secret: NCIi+ryZcJHrxAaVirvXpaocWytVAMkgyKFfj9ZYrkB5fU02m1E37Gv7rKAcH2jETvpavEKzB0P9HZgvXHMqqA==
 
 
 # 평문 비밀번호 저장 (최초 관리자 비번)
