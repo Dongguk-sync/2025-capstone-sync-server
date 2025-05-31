@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -127,6 +128,25 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         // 사용자 정보 조회 후 id 반환
         UserEntity loginUser = userRepository.findByUserEmail(userEmail)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+
+        /**
+         * 로그인 성공 후 정보 업데이트
+         * 1. 만약 마지막 로그인 시점이 현재와 다르면
+         * - 백지 학습일자 증가
+         *
+         * 2. 로그인시 총 개수, 학습 개수, 학습률 갱신
+         */
+        if (!loginUser.getUserLastLoggedIn().toLocalDate().isEqual
+                (LocalDateTime.now().toLocalDate())) {
+            // 오늘 첫 로그인인 경우에만 증가
+            loginUser.setUserStudiedDays(loginUser.getUserStudiedDays() + 1);
+        }
+
+        loginUser.setUserLastLoggedIn(LocalDateTime.now());  // 마지막 로그인 시간 갱신
+
+        // 변경된 정보 저장
+        userRepository.save(loginUser);
 
         // Claims 및 역할 정보 설정
         Claims claims = Jwts.claims().setSubject(userEmail);

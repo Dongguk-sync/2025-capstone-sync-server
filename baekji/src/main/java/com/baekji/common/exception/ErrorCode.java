@@ -47,6 +47,15 @@ public enum ErrorCode {
 
     // 404: 리소스를 찾을 수 없음 (Not Found)
     NOT_FOUND_USER(40401, HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),
+    NOT_FOUND_CHATBOT_HISTORY(40402, HttpStatus.NOT_FOUND, "챗봇 히스토리를 찾을 수 없습니다."),
+    NOT_FOUND_CHATBOT_MESSAGE(40403, HttpStatus.NOT_FOUND, "챗봇 메시지를 찾을 수 없습니다."),
+    NOT_FOUND_SUBJECT(40404, HttpStatus.NOT_FOUND, "과목을 찾을 수 없습니다."),
+    NOT_FOUND_ANSWER_FILE(40405, HttpStatus.NOT_FOUND, "답안 파일을 찾을 수 없습니다."),
+    NOT_FOUND_EXAM_SCHEDULE(40406, HttpStatus.NOT_FOUND, "시험 일정을 찾을 수 없습니다."),
+    NOT_FOUND_STUDY_SCHEDULE(40407, HttpStatus.NOT_FOUND, "학습 일정을 찾을 수 없습니다."),
+    NOT_FOUND_STUDYS(40408, HttpStatus.NOT_FOUND, "복습 기록을 찾을 수 없습니다."),
+    NOT_FOUND_STUDY_MESSAGE(40409, HttpStatus.NOT_FOUND, "복습 메시지를 찾을 수 없습니다."),
+
 
     // 409: 중복 데이터 (Conflict)
     DUPLICATE_ENTRY(40900,  HttpStatus.CONFLICT, "중복된 사원입니다."),
