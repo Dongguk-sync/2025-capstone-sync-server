@@ -55,7 +55,7 @@ public class UserController {
     // 설명.3. 프로필 수정
     // 프로필 수정
     @PatchMapping(value = "/users/{userId}/profile", consumes = {"multipart/form-data"})
-    public ResponseDTO<UserDTO> updateProfile(@PathVariable Long userId,
+    public ResponseDTO<UserDTO> updateProfile(@PathVariable("userId") Long userId,
                                               @RequestPart("userInfo") UserProfileUpdateRequestDTO requestDTO,
                                               @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         UserDTO updatedUser = userService.updateUserProfile(userId, requestDTO, profileImage);
@@ -64,7 +64,7 @@ public class UserController {
     // 설명.4. 비밀번호 재설정
 
     @PatchMapping("/users/{userId}/password")
-    public ResponseDTO<UserDTO> resetPassword(@PathVariable Long userId,
+    public ResponseDTO<UserDTO> resetPassword(@PathVariable("userId") Long userId,
                                               @RequestBody UserPasswordResetRequestDTO requestDTO) {
         UserDTO updatedUser = userService.resetPassword(userId, requestDTO);
         return ResponseDTO.ok(updatedUser);
