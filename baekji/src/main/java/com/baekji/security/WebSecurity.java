@@ -116,8 +116,7 @@ public class WebSecurity {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
 
-        configuration.setAllowedOrigins(List.of("https://inflow.run")); // Allow frontend
-//        configuration.setAllowedOrigins(List.of("http://localhost:5173/")); // 로컬
+        configuration.setAllowedOrigins(List.of("http://localhost:5173/", "http://localhost:8000/")); //프론트, AI
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*")); // Allow all headers
 

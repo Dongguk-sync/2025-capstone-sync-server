@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(40010, HttpStatus.BAD_REQUEST, "잘못된 입력 값입니다."), // 입력 값이 유효하지 않은 경우
     INVALID_REQUEST_BODY(40011, HttpStatus.BAD_REQUEST, "잘못된 요청 본문입니다."), // 요청 본문에 유효하지 않은 데이터가 포함된 경우
     MISSING_REQUIRED_FIELD(40012, HttpStatus.BAD_REQUEST, "필수 필드가 누락되었습니다."), // JSON 또는 요청 데이터에서 필수 필드가 누락된 경우
+    DUPLICATE_NICKNAME(40013, HttpStatus.UNAUTHORIZED, "이미 있는 닉네임입니다."), // 이미 있는 닉네임
 
     // 파일 관련 오류
     UNSUPPORTED_FILE_FORMAT(40020, HttpStatus.BAD_REQUEST, "지원되지 않는 파일 형식입니다."), // 업로드된 파일의 형식이 지원되지 않는 경우
