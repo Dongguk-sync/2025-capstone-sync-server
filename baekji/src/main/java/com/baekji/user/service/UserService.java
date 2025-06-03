@@ -3,6 +3,8 @@ package com.baekji.user.service;
 import com.baekji.common.enums.UserRole;
 import com.baekji.common.exception.CommonException;
 import com.baekji.common.exception.ErrorCode;
+import com.baekji.subject.dto.UserPasswordResetRequestDTO;
+import com.baekji.subject.dto.UserProfileUpdateRequestDTO;
 import com.baekji.user.domain.UserEntity;
 import com.baekji.user.dto.UserDTO;
 import com.baekji.user.dto.UserSignUpRequestDTO;
@@ -18,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -66,8 +69,16 @@ public class UserService implements UserDetailsService {
     // 설명.2. 회원 가입
     @Transactional
     public UserDTO registerUser(UserSignUpRequestDTO signUpRequest) {
-        if (userRepository.findByUserEmail(signUpRequest.getUserEmail()).isPresent()) {
+
+        UserEntity user = userRepository.findByUserEmail(signUpRequest.getUserEmail())
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        if (user.getUserEmail() == signUpRequest.getUserEmail()) {
             throw new CommonException(ErrorCode.EXIST_USER);
+        }
+
+        if (user.getUserNickname() == signUpRequest.getUserNickname()) {
+            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
         String encodedPassword = encodePassword(signUpRequest.getUserPassword());
@@ -97,6 +108,53 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    
+    //설명.3. 프로필 설정
+    // 설명.3. 닉네임, 이메일, 프로필 사진 수정
+
+    @Transactional
+    public UserDTO updateUserProfile(Long userId, UserProfileUpdateRequestDTO requestDTO, MultipartFile profileImage) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        // 닉네임 중복 체크
+        if (requestDTO.getUserNickname() != null && !requestDTO.getUserNickname().isEmpty()) {
+            boolean isNicknameExist = userRepository.existsByUserNickname(requestDTO.getUserNickname());
+            if (isNicknameExist && !requestDTO.getUserNickname().equals(user.getUserNickname())) {
+                throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+            }
+            user.setUserNickname(requestDTO.getUserNickname());
+        }
+
+        // 이메일 변경
+        if (requestDTO.getUserEmail() != null && !requestDTO.getUserEmail().isEmpty()) {
+            user.setUserEmail(requestDTO.getUserEmail());
+        }
+
+        // 프로필 이미지 업로드
+//        if (profileImage != null && !profileImage.isEmpty()) {
+//            // 업로드 로직 작성 (예시: S3에 업로드하거나, 서버 파일 저장)
+//            String uploadedUrl = uploadProfileImage(profileImage); // 이 부분 구현 필요
+//            user.setUserProfileUrl(uploadedUrl);
+//        }
+
+        UserEntity updatedUser = userRepository.save(user);
+        return modelMapper.map(updatedUser, UserDTO.class);
+    }
+
+
+    // 설명.4. 비밀번호 재설정
+    @Transactional
+    public UserDTO resetPassword(Long userId, UserPasswordResetRequestDTO requestDTO) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        String encodedPassword = encodePassword(requestDTO.getNewPassword());
+        user.setUserPassword(encodedPassword);
+
+        UserEntity updatedUser = userRepository.save(user);
+        return modelMapper.map(updatedUser, UserDTO.class);
+    }
 
     // 설명.5. 시큐리티를 위한 설정 메서드
     //  로그인 시 security가 자동으로 호출하는 메소드 */
@@ -123,5 +181,6 @@ public class UserService implements UserDetailsService {
                 true, true, true, true,
                 grantedAuthorities);
     }
+
 
 }
