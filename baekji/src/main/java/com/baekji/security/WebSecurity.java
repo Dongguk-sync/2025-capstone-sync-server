@@ -50,8 +50,9 @@ public class WebSecurity {
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         // 설명.CORS 처리 및 CSRF 비활성화
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable);
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable);
 
         // 설명. AuthenticationManager setup
         AuthenticationManagerBuilder authenticationManagerBuilder =
@@ -65,23 +66,31 @@ public class WebSecurity {
 
         // 설명. 권한 설정
         http.authorizeHttpRequests(authz -> authz
-                    .requestMatchers(new AntPathRequestMatcher("/api/health", "GET")).permitAll()
-                    // 설명. 1. 로그인, 회원가입은 어떤 사용자도 이용 가능
-                    .requestMatchers(new AntPathRequestMatcher("/api/login/**", "POST")).permitAll()
-                    .requestMatchers(new AntPathRequestMatcher("/api/auth/**", "POST")).permitAll()
-                    .requestMatchers(new AntPathRequestMatcher("/api/signup/**", "POST")).permitAll()
 
-                        // 설명. 2. user(회원) 도메인
-                    // 설명. 2.1. 회원 테이블 관련 API
-                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "GET")).hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "POST")).hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "DELETE")).hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "PUT")).hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "PATCH")).hasAnyRole("USER", "ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/**", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/**", "POST")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/**", "DELETE")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/**", "PUT")).permitAll()
+
+//              추후 설정할 권한들
+//                .requestMatchers(new AntPathRequestMatcher("/api/health", "GET")).permitAll()
+//                    // 설명. 1. 로그인, 회원가입은 어떤 사용자도 이용 가능
+//                    .requestMatchers(new AntPathRequestMatcher("/api/login/**", "POST")).permitAll()
+//                    .requestMatchers(new AntPathRequestMatcher("/api/auth/**", "POST")).permitAll()
+//                    .requestMatchers(new AntPathRequestMatcher("/api/signup/**", "POST")).permitAll()
+//
+//                    // 설명. 2. user(회원) 도메인
+//                    // 설명. 2.1. 회원 테이블 관련 API
+//                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "GET")).hasAnyRole("USER", "ADMIN")
+//                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "POST")).hasAnyRole("USER", "ADMIN")
+//                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "DELETE")).hasAnyRole("USER", "ADMIN")
+//                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "PUT")).hasAnyRole("USER", "ADMIN")
+//                    .requestMatchers(new AntPathRequestMatcher("/api/users/**", "PATCH")).hasAnyRole("USER", "ADMIN")
+
+                        // 그외.. 테이블 관련 api
 
 
-                    // 그외.. 테이블 관련 api
-                    // 설명. 기타 요청은 인증 필요
+                // 설명. 기타 요청은 인증 필요
                     .anyRequest().authenticated()
                 )
                 // 설명. authenticationManager 등록
