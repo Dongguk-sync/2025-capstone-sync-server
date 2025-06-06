@@ -26,4 +26,5 @@ public class SubjectController {
         SubjectDTO response = subjectService.getSubjectById(id);
         return ResponseDTO.ok(response);
     }
+
 }

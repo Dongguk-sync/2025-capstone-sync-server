@@ -18,9 +18,9 @@ public class ExamScheduleController {
     private final ExamScheduleService examScheduleService;
 
     // 설명.1.1 시험 일정 전체 조회
-    @GetMapping
-    public ResponseDTO<List<ExamScheduleDTO>> getAllExamSchedules() {
-        List<ExamScheduleDTO> response = examScheduleService.getAllExamSchedules();
+    @GetMapping("/user-id/{user_id}")
+    public ResponseDTO<List<ExamScheduleDTO>> getAllExamSchedules(@PathVariable("user_id") Long userId) {
+        List<ExamScheduleDTO> response = examScheduleService.getAllExamSchedules(userId);
         return ResponseDTO.ok(response);
     }
 
@@ -32,9 +32,11 @@ public class ExamScheduleController {
     }
 
     // 설명.1.3 시험명으로 조회
-    @GetMapping("/search/{exam_schedule_name}")
-    public ResponseDTO<List<ExamScheduleDTO>> getExamSchedulesByName(@PathVariable("exam_schedule_name") String examScheduleName) {
-        List<ExamScheduleDTO> response = examScheduleService.getExamSchedulesByName(examScheduleName);
+    @GetMapping("/search/user-id/{user_id}/name/{exam_schedule_name}")
+    public ResponseDTO<List<ExamScheduleDTO>> getExamSchedulesByName(
+            @PathVariable("user_id") Long userId,
+            @PathVariable("exam_schedule_name") String examScheduleName) {
+        List<ExamScheduleDTO> response = examScheduleService.getExamSchedulesByName(userId, examScheduleName);
         return ResponseDTO.ok(response);
     }
 
