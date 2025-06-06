@@ -1,7 +1,9 @@
 package com.baekji.subject.controller;
 
 import com.baekji.common.ResponseDTO;
+import com.baekji.subject.dto.SubjectCreateRequest;
 import com.baekji.subject.dto.SubjectDTO;
+import com.baekji.subject.dto.SubjectUpdateRequest;
 import com.baekji.subject.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +37,29 @@ public class SubjectController {
                                                                            @PathVariable("subject_name") String subjectName) {
         List<SubjectDTO> response = subjectService.getSubjectsByUserIdAndSubjectName(userId, subjectName);
         return ResponseDTO.ok(response);
+    }
+
+
+    // 설명.2. 과목 생성
+    @PostMapping
+    public ResponseDTO<SubjectDTO> createSubject(@RequestBody SubjectCreateRequest request) {
+        SubjectDTO response = subjectService.createSubject(request);
+        return ResponseDTO.ok(response);
+    }
+
+
+    // 설명.3. 과목 수정 (이름 변경)
+    @PutMapping("/id/{id}")
+    public ResponseDTO<SubjectDTO> updateSubject(@PathVariable("id")Long id, @RequestBody SubjectUpdateRequest request) {
+        SubjectDTO response = subjectService.updateSubject(id, request);
+        return ResponseDTO.ok(response);
+    }
+
+
+    // 설명.4. 과목 삭제
+    @DeleteMapping("/id/{id}")
+    public ResponseDTO<String> deleteSubject(@PathVariable Long id) {
+        subjectService.deleteSubject(id);
+        return ResponseDTO.ok("과목이 삭제 되었습니다. 관련 교안도 모두 삭제되었습니다.");
     }
 }
