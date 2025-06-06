@@ -27,7 +27,7 @@ public class ExamScheduleService {
     private final UserRepository userRepository;
 
     // 시험 일정 전체 조회
-    public List<ExamScheduleDTO> getAllExamSchedules() {
+    public List<ExamScheduleDTO> getAllExamSchedules(Long userId) {
         List<ExamSchedule> exams = examScheduleRepository.findAll();
         if (exams.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_EXAM_SCHEDULE);
@@ -45,8 +45,8 @@ public class ExamScheduleService {
     }
 
     // 시험명으로 조회
-    public List<ExamScheduleDTO> getExamSchedulesByName(String examScheduleName) {
-        List<ExamSchedule> exams = examScheduleRepository.findByExamScheduleNameContaining(examScheduleName);
+    public List<ExamScheduleDTO> getExamSchedulesByName(Long userId, String examScheduleName){
+        List<ExamSchedule> exams = examScheduleRepository.findByUserUserIdAndExamScheduleNameContaining(userId, examScheduleName);
         if (exams.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_EXAM_SCHEDULE);
         }
