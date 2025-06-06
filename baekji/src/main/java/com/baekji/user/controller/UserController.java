@@ -1,9 +1,8 @@
 package com.baekji.user.controller;
 
 import com.baekji.common.ResponseDTO;
-import com.baekji.security.JwtUtil;
-import com.baekji.subject.dto.UserPasswordResetRequestDTO;
-import com.baekji.subject.dto.UserProfileUpdateRequestDTO;
+import com.baekji.user.dto.UserPasswordResetRequestDTO;
+import com.baekji.user.dto.UserProfileUpdateRequestDTO;
 import com.baekji.user.dto.UserDTO;
 import com.baekji.user.dto.UserSignUpRequestDTO;
 import com.baekji.user.service.UserService;

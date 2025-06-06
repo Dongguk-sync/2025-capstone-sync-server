@@ -1,4 +1,4 @@
-package com.baekji.subject.dto;
+package com.baekji.user.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

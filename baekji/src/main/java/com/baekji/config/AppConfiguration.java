@@ -1,16 +1,17 @@
 package com.baekji.config;
 
 
+import com.baekji.subject.domain.AnswerFile;
+import com.baekji.subject.domain.Subject;
+import com.baekji.subject.dto.AnswerFileDTO;
+import com.baekji.subject.dto.SubjectDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.modelmapper.PropertyMap;
 
 import java.util.List;
 
@@ -22,8 +23,26 @@ public class AppConfiguration {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        // Subject -> SubjectDTO 매핑 규칙
+        modelMapper.addMappings(new PropertyMap<Subject, SubjectDTO>() {
+            @Override
+            protected void configure() {
+                map().setUserId(source.getUser().getUserId());
+            }
+        });
+
+        // AnswerFile -> AnswerFileDTO 매핑 규칙
+        modelMapper.addMappings(new PropertyMap<AnswerFile, AnswerFileDTO>() {
+            @Override
+            protected void configure() {
+                map().setSubjectId(source.getSubject().getSubjectId());
+            }
+        });
+
         return modelMapper;
     }
+
 
     /* 설명. Security 자체에서 사용할 암호화 방식용 bean 추가 */
     @Bean

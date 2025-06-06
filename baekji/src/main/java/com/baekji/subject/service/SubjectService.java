@@ -19,8 +19,18 @@ public class SubjectService {
     private final SubjectRepository subjectRepository;
     private final ModelMapper modelMapper;
 
-    public List<SubjectDTO> getAllSubjects() {
-        List<Subject> subjects = subjectRepository.findAll();
+    public List<SubjectDTO> getAllSubjectsByUserId(Long userId) {
+        List<Subject> subjects = subjectRepository.findByUserUserId(userId);
+        if (subjects.isEmpty()) {
+            throw new CommonException(ErrorCode.NOT_FOUND_SUBJECT);
+        }
+        return subjects.stream()
+                .map(subject -> modelMapper.map(subject, SubjectDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<SubjectDTO> getSubjectsByUserIdAndSubjectName(Long userId, String subjectName) {
+        List<Subject> subjects = subjectRepository.findByUserUserIdAndSubjectNameContaining(userId, subjectName);
         if (subjects.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_SUBJECT);
         }
