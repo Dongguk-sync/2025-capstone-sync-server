@@ -16,7 +16,6 @@ public class ChatBotHistoryController {
     private final ChatBotHistoryService chatBotHistoryService;
 
     //설명.1.1. 사용자별 챗팅 히스토리 전체 조회
-    // 설명.1.1. 사용자별 챗팅 히스토리 전체 조회
     @GetMapping("/user-id/{userId}")
     public ResponseDTO<List<ChatBotHistoryDTO>> getAllHistoriesByUserId(@PathVariable("userId") Long userId) {
         List<ChatBotHistoryDTO> response = chatBotHistoryService.getAllHistoriesByUserId(userId);
@@ -29,4 +28,6 @@ public class ChatBotHistoryController {
         ChatBotHistoryDTO response = chatBotHistoryService.getHistoryById(id);
         return ResponseDTO.ok(response);
     }
+
+    //설명.2.1.
 }

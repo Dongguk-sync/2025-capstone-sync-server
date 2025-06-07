@@ -19,8 +19,8 @@ public class ChatBotMessageService {
     private final ChatBotMessageRepository chatBotMessageRepository;
     private final ModelMapper modelMapper;
 
-    public List<ChatBotMessageDTO> getAllMessages() {
-        List<ChatBotMessage> messages = chatBotMessageRepository.findAll();
+    public List<ChatBotMessageDTO> getMessagesByHistoryId(Long historyId) {
+        List<ChatBotMessage> messages = chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(historyId);
         if (messages.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_CHATBOT_MESSAGE);
         }
@@ -29,9 +29,4 @@ public class ChatBotMessageService {
                 .collect(Collectors.toList());
     }
 
-    public ChatBotMessageDTO getMessageById(Long id) {
-        ChatBotMessage message = chatBotMessageRepository.findById(id)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_CHATBOT_MESSAGE));
-        return modelMapper.map(message, ChatBotMessageDTO.class);
-    }
 }
