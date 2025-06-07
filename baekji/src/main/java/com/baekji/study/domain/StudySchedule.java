@@ -6,6 +6,8 @@ import com.baekji.subject.domain.Subject;
 import com.baekji.user.domain.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +24,7 @@ public class StudySchedule {
     private Long studyScheduleId;
 
     @Column(nullable = false)
-    private LocalDateTime studyScheduleDate;
+    private LocalDate studyScheduleDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

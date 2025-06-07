@@ -4,6 +4,8 @@ import com.baekji.subject.domain.Subject;
 import com.baekji.user.domain.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +22,7 @@ public class ExamSchedule {
     private Long examScheduleId;
 
     @Column(nullable = false)
-    private LocalDateTime examScheduleDate;
+    private LocalDate examScheduleDate;
 
     @Column(nullable = false)
     private String examScheduleName;
