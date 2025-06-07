@@ -56,6 +56,12 @@ dependencies {
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+	//pdf 파일, word 파일
+	implementation 'org.apache.poi:poi:5.2.3'           // 공통 - 기본
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'      // docx (신 워드 파일)
+	implementation 'org.apache.poi:poi-scratchpad:5.2.3' // doc (구 워드 파일) ★ 이거 추가
+	implementation 'org.apache.pdfbox:pdfbox:2.0.29'     // PDF
+
 //    //필기. S3 라이브러리 추가
 //	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 //
