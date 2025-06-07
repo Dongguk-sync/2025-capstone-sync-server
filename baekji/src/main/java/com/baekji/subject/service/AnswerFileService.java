@@ -10,6 +10,7 @@ import com.baekji.subject.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -77,6 +78,7 @@ public class AnswerFileService {
     }
 
     // 설명.2. 교안 등록
+    @Transactional
     public AnswerFileDTO saveAnswerFile(Long subjectId, MultipartFile file) {
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_SUBJECT));
@@ -170,4 +172,11 @@ public class AnswerFileService {
     }
 
 
+    @Transactional
+    public void deleteAnswerFile(Long fileId) {
+        AnswerFile answerFile = answerFileRepository.findById(fileId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ANSWER_FILE));
+
+        answerFileRepository.delete(answerFile);
+    }
 }

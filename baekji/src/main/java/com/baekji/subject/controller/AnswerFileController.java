@@ -60,7 +60,12 @@ public class AnswerFileController {
 
     //설명.3. 교안 삭제
 
-
+    //설명.3. 교안 삭제
+    @DeleteMapping("/id/{file_id}")
+    public ResponseDTO<String> deleteAnswerFile(@PathVariable("file_id") Long fileId) {
+        answerFileService.deleteAnswerFile(fileId);
+        return ResponseDTO.ok("교안이 삭제되었습니다.");
+    }
 
 
 }
