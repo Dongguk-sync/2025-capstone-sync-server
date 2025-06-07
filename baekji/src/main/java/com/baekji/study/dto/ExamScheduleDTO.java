@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -18,7 +18,7 @@ public class ExamScheduleDTO {
     private Long examScheduleId;
 
     @JsonProperty("exam_schedule_date")
-    private LocalDateTime examScheduleDate;
+    private LocalDate examScheduleDate;
 
     @JsonProperty("exam_schedule_name")
     private String examScheduleName;
