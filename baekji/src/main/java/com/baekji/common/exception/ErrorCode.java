@@ -54,8 +54,8 @@ public enum ErrorCode {
     NOT_FOUND_ANSWER_FILE(40405, HttpStatus.NOT_FOUND, "답안 파일을 찾을 수 없습니다."),
     NOT_FOUND_EXAM_SCHEDULE(40406, HttpStatus.NOT_FOUND, "시험 일정을 찾을 수 없습니다."),
     NOT_FOUND_STUDY_SCHEDULE(40407, HttpStatus.NOT_FOUND, "학습 일정을 찾을 수 없습니다."),
-    NOT_FOUND_STUDYS(40408, HttpStatus.NOT_FOUND, "복습 기록을 찾을 수 없습니다."),
-    NOT_FOUND_STUDY_MESSAGE(40409, HttpStatus.NOT_FOUND, "복습 메시지를 찾을 수 없습니다."),
+    NOT_FOUND_STUDYS(40408, HttpStatus.NOT_FOUND, "학습 기록을 찾을 수 없습니다."),
+    NOT_FOUND_STUDY_MESSAGE(40409, HttpStatus.NOT_FOUND, "학습 메시지를 찾을 수 없습니다."),
 
 
     // 409: 중복 데이터 (Conflict)

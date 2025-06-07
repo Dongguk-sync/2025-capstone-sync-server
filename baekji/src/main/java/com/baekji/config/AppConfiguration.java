@@ -1,6 +1,7 @@
 package com.baekji.config;
 
-
+import com.baekji.chatbot.domain.ChatBotHistory;
+import com.baekji.chatbot.dto.ChatBotHistoryDTO;
 import com.baekji.subject.domain.AnswerFile;
 import com.baekji.subject.domain.Subject;
 import com.baekji.subject.dto.AnswerFileDTO;
@@ -39,7 +40,12 @@ public class AppConfiguration {
                 map().setSubjectId(source.getSubject().getSubjectId());
             }
         });
-
+        modelMapper.addMappings(new PropertyMap<ChatBotHistory, ChatBotHistoryDTO>() {
+            @Override
+            protected void configure() {
+                map().setUserId(source.getUser().getUserId());
+            }
+        });
         return modelMapper;
     }
 

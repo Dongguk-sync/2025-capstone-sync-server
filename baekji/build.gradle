@@ -62,6 +62,24 @@ dependencies {
 	implementation 'org.apache.poi:poi-scratchpad:5.2.3' // doc (구 워드 파일) ★ 이거 추가
 	implementation 'org.apache.pdfbox:pdfbox:2.0.29'     // PDF
 
+	//필기. stt를 위한 설정
+	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+	implementation 'org.apache.httpcomponents:httpmime:4.5.13'
+	implementation 'com.google.code.gson:gson:2.8.5'
+
+	// Spring WebFlux (WebClient 쓸 때 필요)
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// Spring Boot 기본 Web (필요 시)
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Validation (선택)
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// 테스트 (선택)
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+
 //    //필기. S3 라이브러리 추가
 //	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 //

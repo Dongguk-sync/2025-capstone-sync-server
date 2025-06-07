@@ -19,8 +19,9 @@ public class ChatBotHistoryService {
     private final ChatBotHistoryRepository chatBotHistoryRepository;
     private final ModelMapper modelMapper;
 
-    public List<ChatBotHistoryDTO> getAllHistories() {
-        List<ChatBotHistory> histories = chatBotHistoryRepository.findAll();
+    // 설명.1.1. 사용자 ID로 챗팅 히스토리 전체 조회
+    public List<ChatBotHistoryDTO> getAllHistoriesByUserId(Long userId) {
+        List<ChatBotHistory> histories = chatBotHistoryRepository.findByUser_UserId(userId);
         if (histories.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_CHATBOT_HISTORY);
         }
@@ -29,6 +30,7 @@ public class ChatBotHistoryService {
                 .collect(Collectors.toList());
     }
 
+    // 설명.1.2. 챗팅 히스토리 ID로 단건 조회
     public ChatBotHistoryDTO getHistoryById(Long id) {
         ChatBotHistory history = chatBotHistoryRepository.findById(id)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_CHATBOT_HISTORY));
