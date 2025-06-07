@@ -1,7 +1,9 @@
 package com.baekji.config;
 
 import com.baekji.chatbot.domain.ChatBotHistory;
+import com.baekji.chatbot.domain.ChatBotMessage;
 import com.baekji.chatbot.dto.ChatBotHistoryDTO;
+import com.baekji.chatbot.dto.ChatBotMessageDTO;
 import com.baekji.subject.domain.AnswerFile;
 import com.baekji.subject.domain.Subject;
 import com.baekji.subject.dto.AnswerFileDTO;
@@ -40,12 +42,23 @@ public class AppConfiguration {
                 map().setSubjectId(source.getSubject().getSubjectId());
             }
         });
+
+        //ChatBotMessageDTO -> ChatBotMessage 매핑 규칙  추가
         modelMapper.addMappings(new PropertyMap<ChatBotHistory, ChatBotHistoryDTO>() {
             @Override
             protected void configure() {
                 map().setUserId(source.getUser().getUserId());
             }
         });
+
+        // ChatBotMessage -> ChatBotMessageDTO 매핑 규칙  추가
+        modelMapper.addMappings(new PropertyMap<ChatBotMessage, ChatBotMessageDTO>() {
+            @Override
+            protected void configure() {
+                map().setChatBotHistoryId(source.getChatBotHistory().getChatBotHistoryId());
+            }
+        });
+
         return modelMapper;
     }
 
