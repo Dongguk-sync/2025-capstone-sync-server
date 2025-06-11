@@ -1,5 +1,6 @@
 package com.baekji.security;
 
+import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.user.repository.UserRepository;
 import com.baekji.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class WebSecurity {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final StudyScheduleRepository studyScheduleRepository;
     private final Environment env;
     private final JwtUtil jwtUtil;
 
@@ -38,12 +40,14 @@ public class WebSecurity {
     @Autowired
     public WebSecurity(BCryptPasswordEncoder bCryptPasswordEncoder,  UserService userService
             , Environment env, JwtUtil jwtUtil
-    ,UserRepository userRepository) {
+    ,UserRepository userRepository
+    ,StudyScheduleRepository studyScheduleRepository) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userService = userService;
         this.userRepository=userRepository;
         this.env = env;
         this.jwtUtil = jwtUtil;
+        this.studyScheduleRepository= studyScheduleRepository;
     }
 
     @Bean
@@ -108,7 +112,7 @@ public class WebSecurity {
     // 커스텀 인증 필터 설정 (로그인 URL 변경)
     private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager) {
         AuthenticationFilter authenticationFilter
-                = new AuthenticationFilter(authenticationManager,userRepository, env, bCryptPasswordEncoder);
+                = new AuthenticationFilter(authenticationManager,userRepository, env, bCryptPasswordEncoder,studyScheduleRepository);
         authenticationFilter.setFilterProcessesUrl("/api/login"); // 로그인 처리 URL 변경
         authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
         return authenticationFilter;

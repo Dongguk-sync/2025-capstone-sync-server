@@ -27,7 +27,7 @@ public class StudySchedule {
     private LocalDate studyScheduleDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "study_schedule_completed", nullable = false)
     private COMPLECTED studyScheduleCompleted; // COMP, UNCOMP
 
     @Column(nullable = false)
