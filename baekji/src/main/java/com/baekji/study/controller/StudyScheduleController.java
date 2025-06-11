@@ -2,6 +2,7 @@ package com.baekji.study.controller;
 
 import com.baekji.common.ResponseDTO;
 import com.baekji.study.dto.StudyScheduleDTO;
+import com.baekji.study.dto.StudyScheduleRequestDTO;
 import com.baekji.study.service.StudyScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,15 +16,45 @@ public class StudyScheduleController {
 
     private final StudyScheduleService studyScheduleService;
 
-    @GetMapping
-    public ResponseDTO<List<StudyScheduleDTO>> getAllStudySchedules() {
-        List<StudyScheduleDTO> response = studyScheduleService.getAllStudySchedules();
+    //설명.1.1. 사용자별 학습 일정 전체 조회
+    @GetMapping("/user-id/{user_id}")
+    public ResponseDTO<List<StudyScheduleDTO>> getAllStudySchedulesByUserId(@PathVariable("user_id") Long userId) {
+        List<StudyScheduleDTO> response = studyScheduleService.getAllStudySchedulesByUserId(userId);
         return ResponseDTO.ok(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseDTO<StudyScheduleDTO> getStudyScheduleById(@PathVariable Long id) {
+
+    //설명.1.2. 학습일정 id로 조회
+    @GetMapping("/id/{id}")
+    public ResponseDTO<StudyScheduleDTO> getStudyScheduleById(@PathVariable("id") Long id) {
         StudyScheduleDTO response = studyScheduleService.getStudyScheduleById(id);
         return ResponseDTO.ok(response);
     }
+
+
+    //설명.1.3. 사용자 ID + 과목명으로 학습일정 다건 조회
+    @GetMapping("/search/user-id/{user_id}/name/{name}")
+    public ResponseDTO<List<StudyScheduleDTO>> getStudySchedulesByUserIdAndSubjectName(
+            @PathVariable("user_id") Long userId,
+            @PathVariable("name") String subjectName) {
+
+        List<StudyScheduleDTO> response = studyScheduleService.getByUserIdAndSubjectName(userId, subjectName);
+        return ResponseDTO.ok(response);
+    }
+
+    //설명.2.1. 학습일정 등록
+    @PostMapping
+    public ResponseDTO<StudyScheduleDTO> createStudySchedule(@RequestBody StudyScheduleRequestDTO studyScheduleDTO) {
+        StudyScheduleDTO response = studyScheduleService.createStudySchedule(studyScheduleDTO);
+        return ResponseDTO.ok(response);
+    }
+
+
+    //설명.2.3. 학습일정 삭제
+    @DeleteMapping("/id/{id}")
+    public ResponseDTO<String> deleteStudySchedule(@PathVariable("id") Long studyScheduleId) {
+        studyScheduleService.deleteStudyScheduleById(studyScheduleId);
+        return ResponseDTO.ok("학습일정이 삭제되었습니다. 연관된 모든 학습들이 사라집니다.");
+    }
+
 }
