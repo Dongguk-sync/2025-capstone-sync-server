@@ -3,6 +3,7 @@ package com.baekji.study.controller;
 import com.baekji.common.ResponseDTO;
 import com.baekji.study.dto.StudyScheduleDTO;
 import com.baekji.study.dto.StudyScheduleRequestDTO;
+import com.baekji.study.dto.StudyScheduleResponseDTO;
 import com.baekji.study.service.StudyScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,27 +19,27 @@ public class StudyScheduleController {
 
     //설명.1.1. 사용자별 학습 일정 전체 조회
     @GetMapping("/user-id/{user_id}")
-    public ResponseDTO<List<StudyScheduleDTO>> getAllStudySchedulesByUserId(@PathVariable("user_id") Long userId) {
-        List<StudyScheduleDTO> response = studyScheduleService.getAllStudySchedulesByUserId(userId);
+    public ResponseDTO<List<StudyScheduleResponseDTO>> getAllStudySchedulesByUserId(@PathVariable("user_id") Long userId) {
+        List<StudyScheduleResponseDTO> response = studyScheduleService.getAllStudySchedulesByUserId(userId);
         return ResponseDTO.ok(response);
     }
 
 
     //설명.1.2. 학습일정 id로 조회
     @GetMapping("/id/{id}")
-    public ResponseDTO<StudyScheduleDTO> getStudyScheduleById(@PathVariable("id") Long id) {
-        StudyScheduleDTO response = studyScheduleService.getStudyScheduleById(id);
+    public ResponseDTO<StudyScheduleResponseDTO> getStudyScheduleById(@PathVariable("id") Long id) {
+        StudyScheduleResponseDTO response = studyScheduleService.getStudyScheduleById(id);
         return ResponseDTO.ok(response);
     }
 
 
     //설명.1.3. 사용자 ID + 과목명으로 학습일정 다건 조회
     @GetMapping("/search/user-id/{user_id}/name/{name}")
-    public ResponseDTO<List<StudyScheduleDTO>> getStudySchedulesByUserIdAndSubjectName(
+    public ResponseDTO<List<StudyScheduleResponseDTO>> getStudySchedulesByUserIdAndSubjectName(
             @PathVariable("user_id") Long userId,
             @PathVariable("name") String subjectName) {
 
-        List<StudyScheduleDTO> response = studyScheduleService.getByUserIdAndSubjectName(userId, subjectName);
+        List<StudyScheduleResponseDTO> response = studyScheduleService.getByUserIdAndSubjectName(userId, subjectName);
         return ResponseDTO.ok(response);
     }
 
