@@ -10,7 +10,9 @@ import com.baekji.user.dto.UserDTO;
 import com.baekji.user.dto.UserSignUpRequestDTO;
 import com.baekji.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -20,12 +22,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
@@ -33,6 +36,11 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RestTemplate restTemplate;
+
+    @Value("${ai.server-url}")
+    private String aiServerUrl; // ex: http://localhost:8000
+
 
     private final String basicUserProfileUrl = "https://baekji-bucket.s3.ap-northeast-2.amazonaws.com/user_basic_profile.png";
     // 설명.1.1. 전체 사용자 조회
@@ -70,23 +78,29 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDTO registerUser(UserSignUpRequestDTO signUpRequest) {
 
-        UserEntity user = userRepository.findByUserEmail(signUpRequest.getUserEmail())
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+        Optional<UserEntity> optionalUser = userRepository.findByUserEmail(signUpRequest.getUserEmail());
 
-        if (user.getUserEmail() == signUpRequest.getUserEmail()) {
-            throw new CommonException(ErrorCode.EXIST_USER);
-        }
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
 
-        if (user.getUserNickname() == signUpRequest.getUserNickname()) {
-            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+            if (user.getUserEmail().equals(signUpRequest.getUserEmail())) {
+                log.warn("이미 존재하는 이메일로 회원가입 시도: {}", signUpRequest.getUserEmail());
+                throw new CommonException(ErrorCode.EXIST_USER);
+            }
+
+            if (user.getUserNickname().equals(signUpRequest.getUserNickname())) {
+                log.warn("중복 닉네임으로 회원가입 시도: {}", signUpRequest.getUserNickname());
+                throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+            }
         }
 
         String encodedPassword = encodePassword(signUpRequest.getUserPassword());
+        log.debug("비밀번호 암호화 완료");
 
         UserEntity newUser = UserEntity.builder()
                 .userEmail(signUpRequest.getUserEmail())
                 .userPassword(encodedPassword)
-                .userRole(UserRole.valueOf(signUpRequest.getUserRole().toUpperCase())) // String → Enum
+                .userRole(UserRole.valueOf(signUpRequest.getUserRole().toUpperCase()))
                 .userName(signUpRequest.getUserName())
                 .userPhoneNumber(signUpRequest.getUserPhoneNumber())
                 .userNickname(signUpRequest.getUserNickname())
@@ -94,9 +108,31 @@ public class UserService implements UserDetailsService {
                 .build();
 
         UserEntity savedUser = userRepository.save(newUser);
+        log.info("회원 저장 완료: {}", savedUser.getUserId());
+
+        // AI 서버에 회원가입 정보 전달
+        String url = aiServerUrl + "/signup";
+
+        Map<String, String> request = new HashMap<>();
+        String formattedUserId = "user" + savedUser.getUserId(); // "user_9"
+        request.put("user_id", formattedUserId);
+
+        try {
+            Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
+            boolean success = response != null && Boolean.TRUE.equals(response.get("success"));
+            log.info("response: {}", response);
+            if (success) {
+                log.info("AI 서버로 회원가입 데이터 전달 성공: {}", savedUser.getUserId());
+            } else {
+                log.error("AI 서버 응답 실패 또는 success=false");
+            }
+        } catch (Exception e) {
+            log.error("AI 서버 통신 중 예외 발생", e);
+        }
 
         return modelMapper.map(savedUser, UserDTO.class);
     }
+
 
 
     // 설명.2.1. 비밀번호 Bcrypt 암호화

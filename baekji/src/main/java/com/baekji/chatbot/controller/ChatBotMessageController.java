@@ -1,6 +1,8 @@
 package com.baekji.chatbot.controller;
 
+import com.baekji.chatbot.dto.ChatBotFirstRequestMessageDTO;
 import com.baekji.chatbot.dto.ChatBotMessageDTO;
+import com.baekji.chatbot.dto.ChatBotRequestMessageDTO;
 import com.baekji.chatbot.service.ChatBotMessageService;
 import com.baekji.common.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +23,14 @@ public class ChatBotMessageController {
         List<ChatBotMessageDTO> response = chatBotMessageService.getMessagesByHistoryId(historyId);
         return ResponseDTO.ok(response);
     }
+
+
+    //설명.2.1. 메시지 등록
+    @PostMapping("")
+    public ResponseDTO<ChatBotMessageDTO> createMessage(@RequestBody ChatBotRequestMessageDTO dto) {
+        ChatBotMessageDTO response = chatBotMessageService.createMessage(dto);
+        return ResponseDTO.ok(response);
+    }
+
 
 }
