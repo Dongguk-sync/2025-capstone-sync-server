@@ -84,8 +84,8 @@ public class ChatBotMessageService {
                 .build();
         chatBotMessageRepository.save(userMessage);
 
-        // 2. AI 응답 생성
-        String aiResponse = callAiApi(dto.getMessageContent());
+        // 2. AI 응답 생성 (히스토리 전달해서 chat_history 포함 요청)
+        String aiResponse = callAiApi(history, dto);
 
         // 3. AI 메시지 저장
         ChatBotMessage aiMessage = ChatBotMessage.builder()
@@ -102,26 +102,46 @@ public class ChatBotMessageService {
 
     // FastAPI 서버로 첫 질문 요약 요청
     private String summarizeFirstQuestion(String firstQuestion) {
-//        String url = aiServerUrl + "/first";
-//
-//        Map<String, String> request = new HashMap<>();
-//        request.put("first-question", firstQuestion);
-//
-//        Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
-//        return response.get(""content"); // 예: {"result": "요약된 질문"}
-//    }
-       return "[요약] " + firstQuestion;
+        String url = aiServerUrl + "/chat/summary_session";
+
+        Map<String, String> request = new HashMap<>();
+        request.put("first_question", firstQuestion);
+
+        Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
+        return response.get("summary"); // 예: {"result": "요약된 질문"}
     }
+
     // FastAPI 서버로 일반 질문 응답 요청
-    private String callAiApi(String message) {
-//        String url = aiServerUrl + "/chat";
-//
-//        Map<String, String> request = new HashMap<>();
-//        request.put("message", message);
-//
-//        Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
-//        return response.get("content"); // 예: {"result": "AI 응답"}
-//    }
-     return "AI 응답입니다: " + message;
+    private String callAiApi(ChatBotHistory history, ChatBotRequestMessageDTO dto) {
+        String url = aiServerUrl + "/chat/chat";
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("question", dto.getMessageContent());
+        request.put("user_id", "user" + dto.getUserId()); // user123 형식으로 통일
+        request.put("history_id", "history-" + history.getChatBotHistoryId()); // 예: history-7
+
+        // 기존 히스토리에 있는 메시지를 기반으로 chat_history 생성
+        List<ChatBotMessage> messageList = chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());
+        List<Map<String, String>> chatHistory = messageList.stream()
+                .map(msg -> Map.of(
+                        "message_type", msg.getMessageType().toString().toLowerCase(),
+                        "message_content", msg.getMessageContent()))
+                .collect(Collectors.toList());
+
+        request.put("chat_history", chatHistory);
+
+        try {
+            Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
+            if (response != null && Boolean.TRUE.equals(response.get("success"))) {
+                Map<String, Object> content = (Map<String, Object>) response.get("content");
+                return content.get("message_content").toString();
+            } else {
+                return "AI 응답 실패: 응답 실패 또는 success=false";
+            }
+        } catch (Exception e) {
+            return "AI 서버 통신 중 예외 발생: " + e.getMessage();
+        }
     }
+
+
 }
