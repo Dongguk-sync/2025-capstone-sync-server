@@ -6,9 +6,11 @@ import com.baekji.common.exception.CommonException;
 import com.baekji.common.exception.ErrorCode;
 import com.baekji.security.dto.RequestLoginVO;
 import com.baekji.security.dto.ResponseLoginVO;
+import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.user.domain.UserEntity;
 import com.baekji.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.baekji.common.enums.COMPLECTED;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -30,6 +32,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,17 +43,20 @@ import java.util.stream.Collectors;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final UserRepository userRepository;
+    private final StudyScheduleRepository studyScheduleRepository;
     private final Environment env;
     private final BCryptPasswordEncoder bCryptPasswordEncoder; // 추가
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
                                 UserRepository userRepository,
                                 Environment env,
-                                BCryptPasswordEncoder bCryptPasswordEncoder) { // 추가
+                                BCryptPasswordEncoder bCryptPasswordEncoder,
+                                StudyScheduleRepository studyScheduleRepository) { // 추가
         super(authenticationManager);
         this.userRepository= userRepository;
         this.env = env;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder; // 필드 초기화
+        this.studyScheduleRepository=studyScheduleRepository;
     }
 
     @Override
@@ -137,15 +143,40 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
          *
          * 2. 로그인시 총 개수, 학습 개수, 학습률 갱신
          */
+        
+        // 설명.1. 학습 일자 증가
         if (!loginUser.getUserLastLoggedIn().toLocalDate().isEqual
                 (LocalDateTime.now().toLocalDate())) {
             // 오늘 첫 로그인인 경우에만 증가
             loginUser.setUserStudiedDays(loginUser.getUserStudiedDays() + 1);
         }
 
-        loginUser.setUserLastLoggedIn(LocalDateTime.now());  // 마지막 로그인 시간 갱신
 
-        // 변경된 정보 저장
+        // 설명.2. 학습률 갱신
+
+        // 현재 날짜 기준
+        LocalDate today = LocalDate.now();
+        Long userId = loginUser.getUserId();
+
+        // 오늘의 전체 학습 스케줄 수
+        long todayTotal = studyScheduleRepository.countByUser_UserIdAndStudyScheduleDate(userId, today);
+
+        // 오늘 완료한 학습 수
+        long todayCompleted = studyScheduleRepository
+                .countByUser_UserIdAndStudyScheduleDateAndStudyScheduleCompleted(userId, today, COMPLECTED.COMP);
+
+        // 오늘 학습률 계산 (0으로 나누기 방지)
+        double todayProgress = todayTotal > 0 ? ((double) todayCompleted / todayTotal * 100.0) : 0.0;
+
+        // 유저 필드 갱신
+        loginUser.setUserTotalStudys(todayTotal);
+        loginUser.setUserCompletedStudys(todayCompleted);
+        loginUser.setUserProgressRate(todayProgress);
+
+        // 마지막 로그인 시간 갱신
+        loginUser.setUserLastLoggedIn(LocalDateTime.now());
+
+        // 사용자 저장
         userRepository.save(loginUser);
 
         // Claims 및 역할 정보 설정
