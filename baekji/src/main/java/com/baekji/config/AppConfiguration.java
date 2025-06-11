@@ -4,6 +4,10 @@ import com.baekji.chatbot.domain.ChatBotHistory;
 import com.baekji.chatbot.domain.ChatBotMessage;
 import com.baekji.chatbot.dto.ChatBotHistoryDTO;
 import com.baekji.chatbot.dto.ChatBotMessageDTO;
+import com.baekji.study.domain.StudySchedule;
+import com.baekji.study.domain.Studys;
+import com.baekji.study.dto.StudyScheduleDTO;
+import com.baekji.study.dto.StudysDTO;
 import com.baekji.subject.domain.AnswerFile;
 import com.baekji.subject.domain.Subject;
 import com.baekji.subject.dto.AnswerFileDTO;
@@ -27,7 +31,7 @@ public class AppConfiguration {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        // Subject -> SubjectDTO 매핑 규칙
+        // Subject → SubjectDTO
         modelMapper.addMappings(new PropertyMap<Subject, SubjectDTO>() {
             @Override
             protected void configure() {
@@ -35,7 +39,16 @@ public class AppConfiguration {
             }
         });
 
-        // AnswerFile -> AnswerFileDTO 매핑 규칙
+        // SubjectDTO → Subject
+        modelMapper.addMappings(new PropertyMap<SubjectDTO, Subject>() {
+            @Override
+            protected void configure() {
+                // 연관된 User는 service에서 직접 set
+                skip(destination.getUser());
+            }
+        });
+
+        // AnswerFile → AnswerFileDTO
         modelMapper.addMappings(new PropertyMap<AnswerFile, AnswerFileDTO>() {
             @Override
             protected void configure() {
@@ -43,7 +56,16 @@ public class AppConfiguration {
             }
         });
 
-        //ChatBotMessageDTO -> ChatBotMessage 매핑 규칙  추가
+        // AnswerFileDTO → AnswerFile
+        modelMapper.addMappings(new PropertyMap<AnswerFileDTO, AnswerFile>() {
+            @Override
+            protected void configure() {
+                // 연관된 Subject는 service에서 직접 set
+                skip(destination.getSubject());
+            }
+        });
+
+        // ChatBotHistory → ChatBotHistoryDTO
         modelMapper.addMappings(new PropertyMap<ChatBotHistory, ChatBotHistoryDTO>() {
             @Override
             protected void configure() {
@@ -51,7 +73,15 @@ public class AppConfiguration {
             }
         });
 
-        // ChatBotMessage -> ChatBotMessageDTO 매핑 규칙  추가
+        // ChatBotHistoryDTO → ChatBotHistory
+        modelMapper.addMappings(new PropertyMap<ChatBotHistoryDTO, ChatBotHistory>() {
+            @Override
+            protected void configure() {
+                skip(destination.getUser());
+            }
+        });
+
+        // ChatBotMessage → ChatBotMessageDTO
         modelMapper.addMappings(new PropertyMap<ChatBotMessage, ChatBotMessageDTO>() {
             @Override
             protected void configure() {
@@ -59,9 +89,52 @@ public class AppConfiguration {
             }
         });
 
+        // ChatBotMessageDTO → ChatBotMessage
+        modelMapper.addMappings(new PropertyMap<ChatBotMessageDTO, ChatBotMessage>() {
+            @Override
+            protected void configure() {
+                skip(destination.getChatBotHistory());
+            }
+        });
+
+        // StudySchedule → StudyScheduleDTO
+        modelMapper.addMappings(new PropertyMap<StudySchedule, StudyScheduleDTO>() {
+            @Override
+            protected void configure() {
+                map().setUserId(source.getUser().getUserId());
+                map().setFileId(source.getAnswerFile().getFileId());
+                map().setSubjectId(source.getSubject().getSubjectId());
+            }
+        });
+
+        // StudyScheduleDTO → StudySchedule
+        modelMapper.addMappings(new PropertyMap<StudyScheduleDTO, StudySchedule>() {
+            @Override
+            protected void configure() {
+                skip(destination.getUser());
+                skip(destination.getAnswerFile());
+                skip(destination.getSubject());
+            }
+        });
+
+        // Studys → StudysDTO
+        modelMapper.addMappings(new PropertyMap<Studys, StudysDTO>() {
+            @Override
+            protected void configure() {
+                map().setStudyScheduleId(source.getStudySchedule().getStudyScheduleId());
+            }
+        });
+
+        // StudysDTO → Studys
+        modelMapper.addMappings(new PropertyMap<StudysDTO, Studys>() {
+            @Override
+            protected void configure() {
+                skip(destination.getStudySchedule());
+            }
+        });
+
         return modelMapper;
     }
-
 
     /* 설명. Security 자체에서 사용할 암호화 방식용 bean 추가 */
     @Bean

@@ -15,12 +15,14 @@ public class StudysController {
 
     private final StudysService studysService;
 
-    @GetMapping
-    public ResponseDTO<List<StudysDTO>> getAllStudys() {
-        List<StudysDTO> response = studysService.getAllStudys();
+    //설명.1.1. 학습 일정 ID로 전체 학습 조회
+    @GetMapping("/study-schedule-id/{study_schedule_id}")
+    public ResponseDTO<List<StudysDTO>> getAllStudysByScheduleId(@PathVariable("study_schedule_id") Long scheduleId) {
+        List<StudysDTO> response = studysService.getAllStudysByScheduleId(scheduleId);
         return ResponseDTO.ok(response);
     }
 
+    //설명.1.2. 학습 ID로 단일 학습 조회
     @GetMapping("/{id}")
     public ResponseDTO<StudysDTO> getStudysById(@PathVariable Long id) {
         StudysDTO response = studysService.getStudysById(id);

@@ -19,16 +19,15 @@ public class StudysService {
     private final StudysRepository studysRepository;
     private final ModelMapper modelMapper;
 
-    public List<StudysDTO> getAllStudys() {
-        List<Studys> studysList = studysRepository.findAll();
-        if (studysList.isEmpty()) {
-            throw new CommonException(ErrorCode.NOT_FOUND_STUDYS);
-        }
-        return studysList.stream()
-                .map(studys -> modelMapper.map(studys, StudysDTO.class))
+    //설명.1.1. 스케줄일정 id로 조회
+    public List<StudysDTO> getAllStudysByScheduleId(Long scheduleId) {
+        List<Studys> list = studysRepository.findAllByStudySchedule_StudyScheduleId(scheduleId);
+        return list.stream()
+                .map(study -> modelMapper.map(study, StudysDTO.class))
                 .collect(Collectors.toList());
     }
 
+    //설명.1.2. id로 조회
     public StudysDTO getStudysById(Long id) {
         Studys studys = studysRepository.findById(id)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_STUDYS));
