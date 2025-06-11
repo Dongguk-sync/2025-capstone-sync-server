@@ -2,6 +2,7 @@ package com.baekji.study.repository;
 
 import com.baekji.common.enums.COMPLECTED;
 import com.baekji.study.domain.StudySchedule;
+import com.baekji.subject.domain.AnswerFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,5 @@ public interface StudyScheduleRepository extends JpaRepository<StudySchedule, Lo
       List<StudySchedule> findByUserIdAndSubjectNameContaining(@Param("userId") Long userId,
                                                                    @Param("subjectName") String subjectName);
 
+      Optional<StudySchedule> findTopByAnswerFileOrderByStudyScheduleDateDesc(AnswerFile answerFile);
 }

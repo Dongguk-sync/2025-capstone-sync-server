@@ -7,6 +7,7 @@ import com.baekji.study.domain.StudySchedule;
 import com.baekji.study.domain.Studys;
 import com.baekji.study.dto.StudyScheduleDTO;
 import com.baekji.study.dto.StudyScheduleRequestDTO;
+import com.baekji.study.dto.StudyScheduleResponseDTO;
 import com.baekji.study.repository.StudyMessageRepository;
 import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.study.repository.StudysRepository;
@@ -38,23 +39,23 @@ public class StudyScheduleService {
     private final StudysRepository studysRepository;
     private final StudyMessageRepository studyMessageRepository;
 
-    //설명.1.1. 사용자별 학습 일정 전체 조회
-    public List<StudyScheduleDTO> getAllStudySchedulesByUserId(Long userId) {
+    // 설명.1.1 사용자별 학습 일정 전체 조회
+    public List<StudyScheduleResponseDTO> getAllStudySchedulesByUserId(Long userId) {
         List<StudySchedule> schedules = studyScheduleRepository.findAllByUser_UserId(userId);
         return schedules.stream()
-                .map(schedule -> modelMapper.map(schedule, StudyScheduleDTO.class))
+                .map(this::toResponseDto) // ✅ ModelMapper 대신 직접 매핑 메서드 사용
                 .collect(Collectors.toList());
     }
 
-    //설명.1.2. 학습 일정 ID로 조회
-    public StudyScheduleDTO getStudyScheduleById(Long id) {
+    // 설명.1.2 학습 일정 ID로 조회
+    public StudyScheduleResponseDTO getStudyScheduleById(Long id) {
         StudySchedule schedule = studyScheduleRepository.findById(id)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_STUDY_SCHEDULE));
-        return modelMapper.map(schedule, StudyScheduleDTO.class);
+        return toResponseDto(schedule);
     }
 
-    //설명.1.3. 사용자 ID와 과목명으로 학습일정 조회
-    public List<StudyScheduleDTO> getByUserIdAndSubjectName(Long userId, String subjectName) {
+    // 설명.1.3 사용자 ID와 과목명으로 학습일정 조회
+    public List<StudyScheduleResponseDTO> getByUserIdAndSubjectName(Long userId, String subjectName) {
         List<StudySchedule> schedules = studyScheduleRepository
                 .findByUserIdAndSubjectNameContaining(userId, subjectName);
 
@@ -63,9 +64,24 @@ public class StudyScheduleService {
         }
 
         return schedules.stream()
-                .map(schedule -> modelMapper.map(schedule, StudyScheduleDTO.class))
+                .map(this::toResponseDto)
                 .collect(Collectors.toList());
     }
+
+    private StudyScheduleResponseDTO toResponseDto(StudySchedule schedule) {
+        return StudyScheduleResponseDTO.builder()
+                .studyScheduleId(schedule.getStudyScheduleId())
+                .studyScheduleDate(schedule.getStudyScheduleDate())
+                .studyScheduleCompleted(schedule.getStudyScheduleCompleted())
+                .studyScheduleCreatedAt(schedule.getStudyScheduleCreatedAt())
+                .userId(schedule.getUser().getUserId())
+                .fileId(schedule.getAnswerFile().getFileId())
+                .subjectId(schedule.getSubject().getSubjectId())
+                .subjectName(schedule.getSubject().getSubjectName())
+                .fileName(schedule.getAnswerFile().getFileName())
+                .build();
+    }
+
 
 
     //설명.2.1. 학습 일정 등록
