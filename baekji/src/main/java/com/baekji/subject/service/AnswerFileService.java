@@ -1,8 +1,12 @@
 package com.baekji.subject.service;
 
+import com.baekji.common.enums.COMPLECTED;
+import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.subject.domain.AnswerFile;
 import com.baekji.subject.domain.Subject;
+import com.baekji.study.domain.StudySchedule;
 import com.baekji.subject.dto.AnswerFileDTO;
+import com.baekji.subject.dto.AnswerResponseFileDTO;
 import com.baekji.subject.repository.AnswerFileRepository;
 import com.baekji.common.exception.CommonException;
 import com.baekji.common.exception.ErrorCode;
@@ -17,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,46 +41,48 @@ public class AnswerFileService {
     private final AnswerFileRepository answerFileRepository;
     private final SubjectRepository subjectRepository; // Subject 조회를 위해 필요
     private final ModelMapper modelMapper;
+    private final StudyScheduleRepository studyScheduleRepository; // DI 주입 필요
 
     // 설명.1.1. 과목별 교안 전체 조회
-    public List<AnswerFileDTO> getAnswerFilesBySubjectId(Long subjectId) {
+    public List<AnswerResponseFileDTO> getAnswerFilesBySubjectId(Long subjectId) {
         List<AnswerFile> answerFiles = answerFileRepository.findBySubjectSubjectId(subjectId);
         if (answerFiles.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_ANSWER_FILE);
         }
         return answerFiles.stream()
-                .map(file -> modelMapper.map(file, AnswerFileDTO.class))
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     // 설명.1.2. 교안 id로 조회
-    public AnswerFileDTO getAnswerFileById(Long id) {
+    public AnswerResponseFileDTO getAnswerFileById(Long id) {
         AnswerFile answerFile = answerFileRepository.findById(id)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ANSWER_FILE));
-        return modelMapper.map(answerFile, AnswerFileDTO.class);
+        return toResponseDTO(answerFile);
     }
 
     // 설명.1.3. 사용자별 교안 전체 조회
-    public List<AnswerFileDTO> getAnswerFilesByUserId(Long userId) {
+    public List<AnswerResponseFileDTO> getAnswerFilesByUserId(Long userId) {
         List<AnswerFile> answerFiles = answerFileRepository.findBySubjectUserUserId(userId);
         if (answerFiles.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_ANSWER_FILE);
         }
         return answerFiles.stream()
-                .map(file -> modelMapper.map(file, AnswerFileDTO.class))
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     // 설명.1.4. 사용자별 교안명으로 조회
-    public List<AnswerFileDTO> getAnswerFilesByUserIdAndFileName(Long userId, String fileName) {
+    public List<AnswerResponseFileDTO> getAnswerFilesByUserIdAndFileName(Long userId, String fileName) {
         List<AnswerFile> answerFiles = answerFileRepository.findBySubjectUserUserIdAndFileNameContaining(userId, fileName);
         if (answerFiles.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_ANSWER_FILE);
         }
         return answerFiles.stream()
-                .map(file -> modelMapper.map(file, AnswerFileDTO.class))
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
+
 
     // 설명.2. 교안 등록
     @Transactional
@@ -179,4 +186,26 @@ public class AnswerFileService {
 
         answerFileRepository.delete(answerFile);
     }
+
+    // 파일 -> 응답 DTO 변환
+    private AnswerResponseFileDTO toResponseDTO(AnswerFile file) {
+        LocalDate recentStudiedDate = studyScheduleRepository
+                .findTopByAnswerFileOrderByStudyScheduleDateDesc(file) // 상태 조건 없이 가장 최근 일정
+                .filter(schedule -> schedule.getStudyScheduleCompleted() == COMPLECTED.COMP) // 상태 검사
+                .map(StudySchedule::getStudyScheduleDate)
+                .orElse(null);
+
+        return AnswerResponseFileDTO.builder()
+                .fileId(file.getFileId())
+                .fileName(file.getFileName())
+                .fileContent(file.getFileContent())
+                .fileType(file.getFileType())
+                .fileUrl(file.getFileUrl())
+                .createdAt(file.getCreatedAt())
+                .subjectId(file.getSubject().getSubjectId())
+                .recentStudiedDate(recentStudiedDate)
+                .build();
+    }
+
+
 }
