@@ -28,7 +28,7 @@ public class ExamScheduleService {
 
     // 시험 일정 전체 조회
     public List<ExamScheduleDTO> getAllExamSchedules(Long userId) {
-        List<ExamSchedule> exams = examScheduleRepository.findAll();
+        List<ExamSchedule> exams = examScheduleRepository.findByUserUserId(userId);
         if (exams.isEmpty()) {
             throw new CommonException(ErrorCode.NOT_FOUND_EXAM_SCHEDULE);
         }
