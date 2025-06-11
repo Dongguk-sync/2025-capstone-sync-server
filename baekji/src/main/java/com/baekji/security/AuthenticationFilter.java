@@ -6,6 +6,7 @@ import com.baekji.common.exception.CommonException;
 import com.baekji.common.exception.ErrorCode;
 import com.baekji.security.dto.RequestLoginVO;
 import com.baekji.security.dto.ResponseLoginVO;
+import com.baekji.study.domain.StudySchedule;
 import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.user.domain.UserEntity;
 import com.baekji.user.repository.UserRepository;
@@ -151,33 +152,35 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             loginUser.setUserStudiedDays(loginUser.getUserStudiedDays() + 1);
         }
 
-
         // 설명.2. 학습률 갱신
 
-        // 현재 날짜 기준
+        // 오늘 날짜 기준
         LocalDate today = LocalDate.now();
         Long userId = loginUser.getUserId();
 
-        // 오늘의 전체 학습 스케줄 수
-        long todayTotal = studyScheduleRepository.countByUser_UserIdAndStudyScheduleDate(userId, today);
+        // 오늘 학습 스케줄 전체 조회
+        List<StudySchedule> todaySchedules = studyScheduleRepository
+                .findAllByUser_UserIdAndStudyScheduleDate(userId, today);
 
-        // 오늘 완료한 학습 수
-        long todayCompleted = studyScheduleRepository
-                .countByUser_UserIdAndStudyScheduleDateAndStudyScheduleCompleted(userId, today, COMPLECTED.COMP);
+        // 전체 수
+        long todayTotal = todaySchedules.size();
 
-        // 오늘 학습률 계산 (0으로 나누기 방지)
+        // 완료된 스케줄 수
+        long todayCompleted = todaySchedules.stream()
+                .filter(s -> s.getStudyScheduleCompleted() == COMPLECTED.COMP)
+                .count();
+
+        // 학습률 계산
         double todayProgress = todayTotal > 0 ? ((double) todayCompleted / todayTotal * 100.0) : 0.0;
 
-        // 유저 필드 갱신
+        // 유저 정보 갱신
         loginUser.setUserTotalStudys(todayTotal);
         loginUser.setUserCompletedStudys(todayCompleted);
         loginUser.setUserProgressRate(todayProgress);
-
-        // 마지막 로그인 시간 갱신
         loginUser.setUserLastLoggedIn(LocalDateTime.now());
 
-        // 사용자 저장
         userRepository.save(loginUser);
+
 
         // Claims 및 역할 정보 설정
         Claims claims = Jwts.claims().setSubject(userEmail);
