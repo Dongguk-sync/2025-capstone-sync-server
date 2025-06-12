@@ -79,7 +79,7 @@ public class ChatBotMessageService {
         ChatBotMessage userMessage = ChatBotMessage.builder()
                 .messageType(dto.getMessageType()) // 보통 HUMAN
                 .messageContent(dto.getMessageContent())
-                .messageCreatedAt(LocalDateTime.now())
+                .messageCreatedAt(LocalDateTime.now().withNano(0))
                 .chatBotHistory(history)
                 .build();
         chatBotMessageRepository.save(userMessage);
@@ -91,7 +91,7 @@ public class ChatBotMessageService {
         ChatBotMessage aiMessage = ChatBotMessage.builder()
                 .messageType(MessageType.AI)
                 .messageContent(aiResponse)
-                .messageCreatedAt(LocalDateTime.now())
+                .messageCreatedAt(LocalDateTime.now().withNano(0))
                 .chatBotHistory(history)
                 .build();
         chatBotMessageRepository.save(aiMessage);

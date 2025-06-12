@@ -118,7 +118,7 @@ public class StudysService {
                 .studysFeedContent(aiFeedback)
                 .studysSubjectName(schedule.getSubject().getSubjectName())
                 .studysRound(nextRound)
-                .studysCreatedAt(LocalDateTime.now())
+                .studysCreatedAt(LocalDateTime.now().withNano(0))
                 .build();
         studysRepository.save(studys);
 

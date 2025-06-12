@@ -83,7 +83,7 @@ public class StudyMessageService {
                 .smSubjectName(subject.getSubjectName())
                 .smFileName(file.getFileName())
                 .smFileUrl(file.getFileUrl())
-                .smCreatedAt(LocalDateTime.now())
+                .smCreatedAt(LocalDateTime.now().withNano(0))
                 .build();
         studyMessageRepository.save(humanMessage);
 
