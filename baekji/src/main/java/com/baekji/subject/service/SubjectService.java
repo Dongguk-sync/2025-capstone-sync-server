@@ -63,7 +63,7 @@ public class SubjectService {
 
         Subject subject = Subject.builder()
                 .subjectName(request.getSubjectName())
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().withNano(0))
                 .user(user)
                 .build();
 
