@@ -8,6 +8,7 @@ import com.baekji.study.domain.Studys;
 import com.baekji.study.dto.StudyScheduleDTO;
 import com.baekji.study.dto.StudyScheduleRequestDTO;
 import com.baekji.study.dto.StudyScheduleResponseDTO;
+import com.baekji.study.dto.StudyScheduleSearchDTO;
 import com.baekji.study.repository.StudyMessageRepository;
 import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.study.repository.StudysRepository;
@@ -68,6 +69,20 @@ public class StudyScheduleService {
                 .collect(Collectors.toList());
     }
 
+
+    //설명.1.4. 사용자 ID, 시작 날짜, 종료 날짜
+    public List<StudyScheduleResponseDTO> searchSchedules(StudyScheduleSearchDTO request) {
+        Long userId = request.getUserId();
+        LocalDate start = request.getStartDate();
+        LocalDate end = request.getEndDate();
+
+        // 필요시 JPA 메서드 or QueryDSL로 조회
+        return studyScheduleRepository.findByUserIdAndDateRange(userId, start, end)
+                .stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
     private StudyScheduleResponseDTO toResponseDto(StudySchedule schedule) {
         return StudyScheduleResponseDTO.builder()
                 .studyScheduleId(schedule.getStudyScheduleId())
@@ -81,6 +96,8 @@ public class StudyScheduleService {
                 .fileName(schedule.getAnswerFile().getFileName())
                 .build();
     }
+
+
 
 
 
@@ -167,8 +184,5 @@ public class StudyScheduleService {
 
         userRepository.save(user);
     }
-
-
-
 
 }

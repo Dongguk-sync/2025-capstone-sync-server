@@ -131,7 +131,7 @@ public class AnswerFileService {
 
         // AI 서버 통신 요청 DTO 구성
         AIFTTRequestDTO aiRequest = new AIFTTRequestDTO(
-                "user"+ String.valueOf(userId),  // "user1", "user2" 형태
+                "user_"+ String.valueOf(userId),  // "user_1", "user_2" 형태
                 subject.getSubjectName(),
                 fileName,
                 fileContent,

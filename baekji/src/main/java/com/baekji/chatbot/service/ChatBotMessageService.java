@@ -113,12 +113,12 @@ public class ChatBotMessageService {
 
     // FastAPI 서버로 일반 질문 응답 요청
     private String callAiApi(ChatBotHistory history, ChatBotRequestMessageDTO dto) {
-        String url = aiServerUrl + "/chat/chat";
+        String url = aiServerUrl + "/chat/chatbot";
 
         Map<String, Object> request = new HashMap<>();
         request.put("question", dto.getMessageContent());
-        request.put("user_id", "user" + dto.getUserId()); // user123 형식으로 통일
-        request.put("history_id", history.getChatBotHistoryId()); // 예: history-7
+        request.put("user_id", "user_" + dto.getUserId()); // user123 형식으로 통일
+        request.put("history_id", "history_"+history.getChatBotHistoryId()); // 예: history-7
 
         // 기존 히스토리에 있는 메시지를 기반으로 chat_history 생성
         List<ChatBotMessage> messageList = chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());

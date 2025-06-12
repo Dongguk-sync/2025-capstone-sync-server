@@ -4,6 +4,7 @@ import com.baekji.common.ResponseDTO;
 import com.baekji.study.dto.StudyScheduleDTO;
 import com.baekji.study.dto.StudyScheduleRequestDTO;
 import com.baekji.study.dto.StudyScheduleResponseDTO;
+import com.baekji.study.dto.StudyScheduleSearchDTO;
 import com.baekji.study.service.StudyScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,13 @@ public class StudyScheduleController {
 
         List<StudyScheduleResponseDTO> response = studyScheduleService.getByUserIdAndSubjectName(userId, subjectName);
         return ResponseDTO.ok(response);
+    }
+
+    //설명.1.4. 사용자 ID, 시작 날짜, 종료 날짜
+    @PostMapping("/search/date")
+    public ResponseDTO<List<StudyScheduleResponseDTO>> searchStudySchedules(@RequestBody StudyScheduleSearchDTO request) {
+        List<StudyScheduleResponseDTO> result = studyScheduleService.searchSchedules(request);
+        return ResponseDTO.ok(result);
     }
 
     //설명.2.1. 학습일정 등록
