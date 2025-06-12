@@ -118,7 +118,7 @@ public class ChatBotMessageService {
         Map<String, Object> request = new HashMap<>();
         request.put("question", dto.getMessageContent());
         request.put("user_id", "user" + dto.getUserId()); // user123 형식으로 통일
-        request.put("history_id", "history-" + history.getChatBotHistoryId()); // 예: history-7
+        request.put("history_id", history.getChatBotHistoryId()); // 예: history-7
 
         // 기존 히스토리에 있는 메시지를 기반으로 chat_history 생성
         List<ChatBotMessage> messageList = chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());
@@ -134,7 +134,7 @@ public class ChatBotMessageService {
             Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
             if (response != null && Boolean.TRUE.equals(response.get("success"))) {
                 Map<String, Object> content = (Map<String, Object>) response.get("content");
-                return content.get("message_content").toString();
+                return content.get("answer").toString();
             } else {
                 return "AI 응답 실패: 응답 실패 또는 success=false";
             }

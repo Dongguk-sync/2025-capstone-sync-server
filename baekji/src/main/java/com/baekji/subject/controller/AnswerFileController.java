@@ -53,14 +53,13 @@ public class AnswerFileController {
     //설명.2. 교안 등록
     @PostMapping("/upload")
     public ResponseDTO<AnswerFileDTO> uploadAnswerFile(
+            @RequestParam("user_id") Long userId,
             @RequestParam("subject_id") Long subjectId,
             @RequestParam("file") MultipartFile file) {
 
-        AnswerFileDTO response = answerFileService.saveAnswerFile(subjectId, file);
+        AnswerFileDTO response = answerFileService.saveAnswerFile(userId,subjectId, file);
         return ResponseDTO.ok(response);
     }
-
-    //설명.3. 교안 삭제
 
     //설명.3. 교안 삭제
     @DeleteMapping("/id/{file_id}")

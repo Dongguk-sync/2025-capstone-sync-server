@@ -114,7 +114,7 @@ public class UserService implements UserDetailsService {
         String url = aiServerUrl + "/signup";
 
         Map<String, String> request = new HashMap<>();
-        String formattedUserId = "user" + savedUser.getUserId(); // "user_9"
+        String formattedUserId = "user" + savedUser.getUserId(); // "user9"
         request.put("user_id", formattedUserId);
 
         try {
