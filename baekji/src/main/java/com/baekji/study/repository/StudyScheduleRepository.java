@@ -23,4 +23,12 @@ public interface StudyScheduleRepository extends JpaRepository<StudySchedule, Lo
                                                                    @Param("subjectName") String subjectName);
 
       Optional<StudySchedule> findTopByAnswerFileOrderByStudyScheduleDateDesc(AnswerFile answerFile);
+
+      @Query("SELECT ss FROM StudySchedule ss " +
+              "WHERE ss.user.userId = :userId " +
+              "AND ss.studyScheduleDate BETWEEN :startDate AND :endDate")
+      List<StudySchedule> findByUserIdAndDateRange(
+              @Param("userId") Long userId,
+              @Param("startDate") LocalDate startDate,
+              @Param("endDate") LocalDate endDate);
 }
