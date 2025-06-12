@@ -117,18 +117,29 @@ public class ChatBotMessageService {
 
         Map<String, Object> request = new HashMap<>();
         request.put("question", dto.getMessageContent());
-        request.put("user_id", "user_" + dto.getUserId()); // user123 형식으로 통일
-        request.put("history_id", "history_"+history.getChatBotHistoryId()); // 예: history-7
+        request.put("user_id", "user_" + dto.getUserId()); // 형식 맞춤
 
-        // 기존 히스토리에 있는 메시지를 기반으로 chat_history 생성
-        List<ChatBotMessage> messageList = chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());
-        List<Map<String, String>> chatHistory = messageList.stream()
-                .map(msg -> Map.of(
-                        "message_type", msg.getMessageType().toString().toLowerCase(),
-                        "message_content", msg.getMessageContent()))
-                .collect(Collectors.toList());
+        // 공통: history_id는 항상 포함 (예: "history_6")
+        request.put("chat_bot_history_id", "history_" + history.getChatBotHistoryId());
 
-        request.put("chat_history", chatHistory);
+        // history가 존재하는 경우에만 추가 필드 포함
+        if (dto.getChatBotHistoryId() != null) {
+
+            // 기존 메시지 조회 후 chat_bot_history 생성
+            List<ChatBotMessage> messageList =
+                    chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());
+
+            List<Map<String, String>> chatHistory = messageList.stream()
+                    .map(msg -> {
+                        Map<String, String> m = new HashMap<>();
+                        m.put("message_type", msg.getMessageType().toString()); // HUMAN 또는 AI
+                        m.put("message_content", msg.getMessageContent());
+                        return m;
+                    })
+                    .collect(Collectors.toList());
+
+            request.put("chat_bot_history", chatHistory);
+        }
 
         try {
             Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
@@ -142,6 +153,7 @@ public class ChatBotMessageService {
             return "AI 서버 통신 중 예외 발생: " + e.getMessage();
         }
     }
+
 
 
 }
