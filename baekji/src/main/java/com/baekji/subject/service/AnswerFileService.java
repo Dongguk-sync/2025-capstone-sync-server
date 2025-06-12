@@ -5,6 +5,8 @@ import com.baekji.study.repository.StudyScheduleRepository;
 import com.baekji.subject.domain.AnswerFile;
 import com.baekji.subject.domain.Subject;
 import com.baekji.study.domain.StudySchedule;
+import com.baekji.subject.dto.AIFTTRequestDTO;
+import com.baekji.subject.dto.AIFTTResponseDTO;
 import com.baekji.subject.dto.AnswerFileDTO;
 import com.baekji.subject.dto.AnswerResponseFileDTO;
 import com.baekji.subject.repository.AnswerFileRepository;
@@ -13,8 +15,14 @@ import com.baekji.common.exception.ErrorCode;
 import com.baekji.subject.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -42,6 +50,10 @@ public class AnswerFileService {
     private final SubjectRepository subjectRepository; // Subject 조회를 위해 필요
     private final ModelMapper modelMapper;
     private final StudyScheduleRepository studyScheduleRepository; // DI 주입 필요
+    private final RestTemplate restTemplate;
+
+    @Value("${ai.server-url}")
+    private String aiServerUrl; // ex: http://localhost:8000
 
     // 설명.1.1. 과목별 교안 전체 조회
     public List<AnswerResponseFileDTO> getAnswerFilesBySubjectId(Long subjectId) {
@@ -86,10 +98,11 @@ public class AnswerFileService {
 
     // 설명.2. 교안 등록
     @Transactional
-    public AnswerFileDTO saveAnswerFile(Long subjectId, MultipartFile file) {
+    public AnswerFileDTO saveAnswerFile(Long userId, Long subjectId, MultipartFile file) {
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_SUBJECT));
 
+        // 파일명 및 타입 추출
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || !originalFilename.contains(".")) {
             throw new CommonException(ErrorCode.UNSUPPORTED_FILE_FORMAT);
@@ -98,21 +111,8 @@ public class AnswerFileService {
         String fileName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
         String fileType = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
 
-        String fileContent = "";
-
-        try {
-            if ("pdf".equalsIgnoreCase(fileType)) {
-                fileContent = extractTextFromPDF(file);
-            } else if ("docx".equalsIgnoreCase(fileType)) {
-                fileContent = extractTextFromDocx(file);
-            } else if ("doc".equalsIgnoreCase(fileType)) {
-                fileContent = extractTextFromDoc(file);
-            } else {
-                fileContent = extractTextFromTextFile(file);
-            }
-        } catch (Exception e) {
-            throw new CommonException(ErrorCode.UNSUPPORTED_FILE_FORMAT);
-        }
+        // 파일 내용 추출
+        String fileContent = extractFileContent(fileType, file);
 
         // 1차 저장 (fileUrl 없이)
         AnswerFile answerFile = AnswerFile.builder()
@@ -125,14 +125,54 @@ public class AnswerFileService {
 
         AnswerFile savedFile = answerFileRepository.save(answerFile);
 
-        // fileId 기반으로 fileUrl 세팅
+        // fileUrl 설정 후 AI 서버로 전송
         String fileUrl = "/subjects/" + subjectId + "/files/" + savedFile.getFileId();
         savedFile.setFileUrl(fileUrl);
 
-        // 다시 저장
-        AnswerFile updatedFile = answerFileRepository.save(savedFile);
+        // AI 서버 통신 요청 DTO 구성
+        AIFTTRequestDTO aiRequest = new AIFTTRequestDTO(
+                "user"+ String.valueOf(userId),  // "user1", "user2" 형태
+                subject.getSubjectName(),
+                fileName,
+                fileContent,
+                fileUrl
+        );
 
+        // AI 서버 POST 요청
+        try {
+            String url = aiServerUrl + "/preprocess/ftt";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<AIFTTRequestDTO> entity = new HttpEntity<>(aiRequest, headers);
+
+            ResponseEntity<AIFTTResponseDTO> response =
+                    restTemplate.postForEntity(url, entity, AIFTTResponseDTO.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                savedFile.setFileContent(response.getBody().getContent());
+            }
+        } catch (Exception e) {
+            System.out.println("AI 서버 통신 실패: " + e.getMessage());
+        }
+
+        // 최종 저장 및 반환
+        AnswerFile updatedFile = answerFileRepository.save(savedFile);
         return modelMapper.map(updatedFile, AnswerFileDTO.class);
+    }
+
+    // 파일 추출 분기 메서드 분리
+    private String extractFileContent(String fileType, MultipartFile file) {
+        try {
+            switch (fileType.toLowerCase()) {
+                case "pdf": return extractTextFromPDF(file);
+                case "docx": return extractTextFromDocx(file);
+                case "doc": return extractTextFromDoc(file);
+                default: return extractTextFromTextFile(file);
+            }
+        } catch (Exception e) {
+            throw new CommonException(ErrorCode.UNSUPPORTED_FILE_FORMAT);
+        }
     }
 
     // PDF 텍스트 추출
