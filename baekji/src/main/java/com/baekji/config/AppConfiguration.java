@@ -141,6 +141,10 @@ public class AppConfiguration {
             @Override
             protected void configure() {
                 map().setStudysId(source.getStudys().getStudysId());
+                map().setSmSubjectName(source.getStudys().getStudySchedule().getSubject().getSubjectName());
+                map().setSmFileName(source.getStudys().getStudySchedule().getAnswerFile().getFileName());
+                map().setSmFileUrl("/subjects/" + source.getStudys().getStudySchedule().getSubject().getSubjectId()
+                        + "/files/" + source.getStudys().getStudySchedule().getAnswerFile().getFileId());
             }
         });
 

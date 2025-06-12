@@ -2,6 +2,7 @@ package com.baekji.study.controller;
 
 import com.baekji.common.ResponseDTO;
 import com.baekji.study.dto.StudyMessageDTO;
+import com.baekji.study.dto.StudyMessageRegisterRequestDTO;
 import com.baekji.study.service.StudyMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,13 @@ public class StudyMessageController {
     @GetMapping("/studys-id/{studysId}")
     public ResponseDTO<List<StudyMessageDTO>> getMessagesByStudysId(@PathVariable Long studysId) {
         List<StudyMessageDTO> response = studyMessageService.getMessagesByStudysId(studysId);
+        return ResponseDTO.ok(response);
+    }
+
+    // 설명.2 교안별 메시지 등록
+    @PostMapping("/lecture/chat")
+    public ResponseDTO<StudyMessageDTO> registerStudyMessage(@RequestBody StudyMessageRegisterRequestDTO request) {
+        StudyMessageDTO response = studyMessageService.registerMessageFlow(request);
         return ResponseDTO.ok(response);
     }
 

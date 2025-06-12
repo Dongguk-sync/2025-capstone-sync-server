@@ -62,7 +62,7 @@ public class ChatBotMessageService {
             history = ChatBotHistory.builder()
                     .user(user)
                     .historyFirstQuestion(summarized)
-                    .historyCreatedAt(LocalDateTime.now())
+                    .historyCreatedAt(LocalDateTime.now().withNano(0))
                     .build();
             chatBotHistoryRepository.save(history);
         } else {
