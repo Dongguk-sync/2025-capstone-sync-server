@@ -44,7 +44,7 @@ public class UserEntity {
 
     @Builder.Default
     @Column(name = "user_created_at", nullable = false)
-    private LocalDateTime userCreatedAt = LocalDateTime.now();
+    private LocalDateTime userCreatedAt = LocalDateTime.now().withNano(0);
 
     @Column(name = "user_profile_url", nullable = false, columnDefinition = "TEXT")
     private String userProfileUrl;

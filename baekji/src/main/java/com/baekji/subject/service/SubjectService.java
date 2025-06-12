@@ -78,7 +78,7 @@ public class SubjectService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_SUBJECT));
 
         subject.setSubjectName(request.getSubjectName());
-        subject.setCreatedAt(LocalDateTime.now());
+        subject.setCreatedAt(LocalDateTime.now().withNano(0));
 
         Subject updatedSubject = subjectRepository.save(subject);
         return modelMapper.map(updatedSubject, SubjectDTO.class);

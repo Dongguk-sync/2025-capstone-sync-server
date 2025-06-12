@@ -119,7 +119,7 @@ public class AnswerFileService {
                 .fileName(fileName)
                 .fileType(fileType)
                 .fileContent(fileContent)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().withNano(0))
                 .subject(subject)
                 .build();
 

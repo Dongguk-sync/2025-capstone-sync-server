@@ -117,7 +117,7 @@ public class StudyScheduleService {
         StudySchedule studySchedule = StudySchedule.builder()
                 .studyScheduleDate(dto.getStudyScheduleDate())
                 .studyScheduleCompleted(COMPLECTED.UNCOMP) // 기본값: 미완료
-                .studyScheduleCreatedAt(LocalDateTime.now()) // 생성 시각
+                .studyScheduleCreatedAt(LocalDateTime.now().withNano(0)) // 생성 시각
                 .user(user)
                 .answerFile(answerFile)
                 .subject(subject)

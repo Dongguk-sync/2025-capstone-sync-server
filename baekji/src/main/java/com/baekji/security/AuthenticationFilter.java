@@ -177,7 +177,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         loginUser.setUserTotalStudys(todayTotal);
         loginUser.setUserCompletedStudys(todayCompleted);
         loginUser.setUserProgressRate(todayProgress);
-        loginUser.setUserLastLoggedIn(LocalDateTime.now());
+        loginUser.setUserLastLoggedIn(LocalDateTime.now().withNano(0));
 
         userRepository.save(loginUser);
 
