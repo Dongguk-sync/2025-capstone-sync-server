@@ -4,10 +4,13 @@ import com.baekji.chatbot.domain.ChatBotHistory;
 import com.baekji.chatbot.domain.ChatBotMessage;
 import com.baekji.chatbot.dto.ChatBotHistoryDTO;
 import com.baekji.chatbot.dto.ChatBotMessageDTO;
+import com.baekji.study.domain.StudyMessage;
 import com.baekji.study.domain.StudySchedule;
 import com.baekji.study.domain.Studys;
+import com.baekji.study.dto.StudyMessageDTO;
 import com.baekji.study.dto.StudyScheduleDTO;
 import com.baekji.study.dto.StudysDTO;
+import com.baekji.study.dto.StudysResponseDTO;
 import com.baekji.subject.domain.AnswerFile;
 import com.baekji.subject.domain.Subject;
 import com.baekji.subject.dto.AnswerFileDTO;
@@ -130,6 +133,37 @@ public class AppConfiguration {
             @Override
             protected void configure() {
                 skip(destination.getStudySchedule());
+            }
+        });
+
+        // StudyMessage → StudyMessageDTO
+        modelMapper.addMappings(new PropertyMap<StudyMessage, StudyMessageDTO>() {
+            @Override
+            protected void configure() {
+                map().setStudysId(source.getStudys().getStudySchedule().getStudyScheduleId());
+            }
+        });
+
+        // Studys → StudysResponseDTO
+        modelMapper.addMappings(new PropertyMap<Studys, StudysResponseDTO>() {
+            @Override
+            protected void configure() {
+                map().setStudyScheduleId(source.getStudySchedule().getStudyScheduleId());
+
+                // 아래는 studySchedule을 통해 subject, answerFile에서 값을 추출
+                map().setSubjectId(source.getStudySchedule().getSubject().getSubjectId());
+                map().setSubjectName(source.getStudySchedule().getSubject().getSubjectName());
+
+                map().setFileId(source.getStudySchedule().getAnswerFile().getFileId());
+                map().setFileName(source.getStudySchedule().getAnswerFile().getFileName());
+            }
+        });
+
+        // StudyMessageDTO → StudyMessage
+        modelMapper.addMappings(new PropertyMap<StudyMessageDTO, StudyMessage>() {
+            @Override
+            protected void configure() {
+                skip(destination.getStudys()); // 연관 관계는 서비스에서 set
             }
         });
 
