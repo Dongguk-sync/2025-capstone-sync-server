@@ -15,15 +15,18 @@ public class StudyMessageController {
 
     private final StudyMessageService studyMessageService;
 
-    @GetMapping
-    public ResponseDTO<List<StudyMessageDTO>> getAllStudyMessages() {
-        List<StudyMessageDTO> response = studyMessageService.getAllStudyMessages();
-        return ResponseDTO.ok(response);
-    }
-
-    @GetMapping("/{id}")
+    //설명.1.1 id로 조회하기
+    @GetMapping("/id/{id}")
     public ResponseDTO<StudyMessageDTO> getStudyMessageById(@PathVariable Long id) {
         StudyMessageDTO response = studyMessageService.getStudyMessageById(id);
         return ResponseDTO.ok(response);
     }
+
+    // 설명.1.2 학습별로 메시지 리스트 조회
+    @GetMapping("/studys-id/{studysId}")
+    public ResponseDTO<List<StudyMessageDTO>> getMessagesByStudysId(@PathVariable Long studysId) {
+        List<StudyMessageDTO> response = studyMessageService.getMessagesByStudysId(studysId);
+        return ResponseDTO.ok(response);
+    }
+
 }

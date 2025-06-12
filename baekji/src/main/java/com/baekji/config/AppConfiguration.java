@@ -140,7 +140,15 @@ public class AppConfiguration {
         modelMapper.addMappings(new PropertyMap<StudyMessage, StudyMessageDTO>() {
             @Override
             protected void configure() {
-                map().setStudysId(source.getStudys().getStudySchedule().getStudyScheduleId());
+                map().setStudysId(source.getStudys().getStudysId());
+            }
+        });
+
+        // StudyMessageDTO → StudyMessage
+        modelMapper.addMappings(new PropertyMap<StudyMessageDTO, StudyMessage>() {
+            @Override
+            protected void configure() {
+                skip(destination.getStudys()); // 연관 관계는 서비스에서 set
             }
         });
 
@@ -159,13 +167,6 @@ public class AppConfiguration {
             }
         });
 
-        // StudyMessageDTO → StudyMessage
-        modelMapper.addMappings(new PropertyMap<StudyMessageDTO, StudyMessage>() {
-            @Override
-            protected void configure() {
-                skip(destination.getStudys()); // 연관 관계는 서비스에서 set
-            }
-        });
 
         return modelMapper;
     }
