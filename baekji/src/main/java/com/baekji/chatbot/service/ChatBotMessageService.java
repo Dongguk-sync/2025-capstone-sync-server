@@ -2,6 +2,7 @@ package com.baekji.chatbot.service;
 
 import com.baekji.chatbot.domain.ChatBotHistory;
 import com.baekji.chatbot.domain.ChatBotMessage;
+import com.baekji.chatbot.dto.ChatBotAiResponseDTO;
 import com.baekji.chatbot.dto.ChatBotMessageDTO;
 import com.baekji.chatbot.dto.ChatBotRequestMessageDTO;
 import com.baekji.chatbot.repository.ChatBotHistoryRepository;
@@ -12,6 +13,7 @@ import com.baekji.common.exception.ErrorCode;
 import com.baekji.user.domain.UserEntity;
 import com.baekji.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatBotMessageService {
 
     private final ChatBotMessageRepository chatBotMessageRepository;
@@ -50,6 +53,7 @@ public class ChatBotMessageService {
     public ChatBotMessageDTO createMessage(ChatBotRequestMessageDTO dto) {
         ChatBotHistory history;
 
+        //필기.1. history_id가 null일때 질문한 경우 히스토리 생성
         if (dto.getChatBotHistoryId() == null) {
             // 1. 사용자 존재 확인
             UserEntity user = userRepository.findById(dto.getUserId())
@@ -69,6 +73,8 @@ public class ChatBotMessageService {
             history = chatBotHistoryRepository.findById(dto.getChatBotHistoryId())
                     .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_CHATBOT_HISTORY));
         }
+
+        //필기.2. history_id가 null일때 질문한 경우 히스토리 생성
         // 메시지 응답
         return createMessageInternal(history, dto);
     }
@@ -84,19 +90,25 @@ public class ChatBotMessageService {
                 .build();
         chatBotMessageRepository.save(userMessage);
 
-        // 2. AI 응답 생성 (히스토리 전달해서 chat_history 포함 요청)
-        String aiResponse = callAiApi(history, dto);
+        // 2. AI 응답 생성
+        ChatBotAiResponseDTO.ContentDTO aiContent = callAiApi(history, dto);
 
-        // 3. AI 메시지 저장
+        if (aiContent == null) {
+            throw new CommonException(ErrorCode.AI_RESPONSE_FAILED);
+        }
+
+        // 3. AI 메시지 저장 (여기에 모든 필드 반영)
         ChatBotMessage aiMessage = ChatBotMessage.builder()
                 .messageType(MessageType.AI)
-                .messageContent(aiResponse)
+                .messageContent(aiContent.getMessage_content())
                 .messageCreatedAt(LocalDateTime.now().withNano(0))
                 .chatBotHistory(history)
+                .subjectName(aiContent.getSubject_name())
+                .fileName(aiContent.getFile_name())
+                .fileUrl(aiContent.getFile_url())
                 .build();
         chatBotMessageRepository.save(aiMessage);
 
-        // 4. 마지막 메시지 반환
         return modelMapper.map(aiMessage, ChatBotMessageDTO.class);
     }
 
@@ -112,48 +124,44 @@ public class ChatBotMessageService {
     }
 
     // FastAPI 서버로 일반 질문 응답 요청
-    private String callAiApi(ChatBotHistory history, ChatBotRequestMessageDTO dto) {
+    private ChatBotAiResponseDTO.ContentDTO callAiApi(ChatBotHistory history, ChatBotRequestMessageDTO dto) {
         String url = aiServerUrl + "/chat/chatbot";
 
         Map<String, Object> request = new HashMap<>();
         request.put("question", dto.getMessageContent());
-        request.put("user_id", "user_" + dto.getUserId()); // 형식 맞춤
-
-        // 공통: history_id는 항상 포함 (예: "history_6")
+        request.put("user_id", "user_" + dto.getUserId());
         request.put("chat_bot_history_id", "history_" + history.getChatBotHistoryId());
 
-        // history가 존재하는 경우에만 추가 필드 포함
-        if (dto.getChatBotHistoryId() != null) {
+        List<ChatBotMessage> messageList =
+                chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());
 
-            // 기존 메시지 조회 후 chat_bot_history 생성
-            List<ChatBotMessage> messageList =
-                    chatBotMessageRepository.findByChatBotHistoryChatBotHistoryId(history.getChatBotHistoryId());
+        List<Map<String, String>> chatHistory = messageList.stream()
+                .map(msg -> {
+                    Map<String, String> m = new HashMap<>();
+                    m.put("message_type", msg.getMessageType().toString());
+                    m.put("message_content", msg.getMessageContent());
+                    return m;
+                })
+                .collect(Collectors.toList());
 
-            List<Map<String, String>> chatHistory = messageList.stream()
-                    .map(msg -> {
-                        Map<String, String> m = new HashMap<>();
-                        m.put("message_type", msg.getMessageType().toString()); // HUMAN 또는 AI
-                        m.put("message_content", msg.getMessageContent());
-                        return m;
-                    })
-                    .collect(Collectors.toList());
-
-            request.put("chat_bot_history", chatHistory);
-        }
+        request.put("chat_bot_history", chatHistory);
 
         try {
-            Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
-            if (response != null && Boolean.TRUE.equals(response.get("success"))) {
-                Map<String, Object> content = (Map<String, Object>) response.get("content");
-                return content.get("answer").toString();
+            ChatBotAiResponseDTO response = restTemplate.postForObject(url, request, ChatBotAiResponseDTO.class);
+
+            log.info("AI 서버 응답: {}", response);
+
+            if (response != null && response.isSuccess()) {
+                return response.getContent(); // ✅ 전체 ContentDTO 반환
             } else {
-                return "AI 응답 실패: 응답 실패 또는 success=false";
+                return null;
             }
         } catch (Exception e) {
-            return "AI 서버 통신 중 예외 발생: " + e.getMessage();
+            log.error("AI 서버 통신 중 예외", e);
+            return null;
         }
-    }
 
+    }
 
 
 }
