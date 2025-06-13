@@ -23,4 +23,5 @@ public class AIResponseDTO {
 
     @JsonProperty("file_name")
     private String fileName;
+
 }
